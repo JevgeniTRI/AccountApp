@@ -2,14 +2,16 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   CalendarDays,
-  Copy,
+  ChevronDown,
+  ChevronUp,
+  Eye,
   GripVertical,
+  Paperclip,
   Plus,
   Save,
   Trash2,
   Upload,
-  ChevronDown,
-  ChevronUp,
+  X,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import LookupField from '../../components/LookupField/LookupField'
@@ -36,6 +38,7 @@ function createRow() {
     clientText: '',
     comment: '',
     expanded: false,
+    attachments: [],
   }
 }
 
@@ -50,6 +53,16 @@ function createInitialState() {
 
 function buildRowNotes(row) {
   return row.comment.trim() || null
+}
+
+function buildDraftState(state) {
+  return {
+    ...state,
+    rows: state.rows.map((row) => ({
+      ...row,
+      attachments: [],
+    })),
+  }
 }
 
 export default function AddPaymentsPage() {
@@ -83,7 +96,14 @@ export default function AddPaymentsPage() {
               bookingDate: draft.bookingDate || toDateInputValue(new Date()),
               bankAccount: draft.bankAccount || null,
               bankAccountText: draft.bankAccountText || draft.bankAccount?.label || '',
-              rows: draft.rows?.length ? draft.rows : [createRow()],
+              rows:
+                draft.rows?.length
+                  ? draft.rows.map((row) => ({
+                      ...createRow(),
+                      ...row,
+                      attachments: [],
+                    }))
+                  : [createRow()],
             })
           } catch {
             // Ignore malformed drafts and keep the default form state.
@@ -155,21 +175,6 @@ export default function AddPaymentsPage() {
     })
   }
 
-  function duplicateRow(rowId) {
-    const source = formState.rows.find((row) => row.id === rowId)
-    if (!source) {
-      return
-    }
-
-    setFormState((current) => {
-      const duplicate = { ...source, id: crypto.randomUUID(), expanded: false }
-      const index = current.rows.findIndex((row) => row.id === rowId)
-      const nextRows = [...current.rows]
-      nextRows.splice(index + 1, 0, duplicate)
-      return { ...current, rows: nextRows }
-    })
-  }
-
   function removeRow(rowId) {
     setFormState((current) => {
       if (current.rows.length === 1) {
@@ -193,7 +198,7 @@ export default function AddPaymentsPage() {
   }
 
   function handleSaveDraft() {
-    window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formState))
+    window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(buildDraftState(formState)))
     setMessage({ type: 'success', text: 'Черновик сохранён локально' })
   }
 
@@ -223,7 +228,14 @@ export default function AddPaymentsPage() {
         bookingDate: draft.bookingDate || toDateInputValue(new Date()),
         bankAccount: draft.bankAccount || null,
         bankAccountText: draft.bankAccountText || draft.bankAccount?.label || '',
-        rows: draft.rows?.length ? draft.rows : [createRow()],
+        rows:
+          draft.rows?.length
+            ? draft.rows.map((row) => ({
+                ...createRow(),
+                ...row,
+                attachments: [],
+              }))
+            : [createRow()],
       })
       setMessage({ type: 'success', text: 'Черновик загружен' })
     } catch {
@@ -283,6 +295,11 @@ export default function AddPaymentsPage() {
           counterparty_name: client ? row.counterpartyName.trim() : null,
           payment_purpose: row.counterpartyName.trim() || null,
           notes: buildRowNotes(row),
+          attachments: row.attachments.map((attachment) => ({
+            file_name: attachment.fileName,
+            content_type: attachment.contentType,
+            file_content_base64: attachment.base64,
+          })),
         })
       }
 
@@ -314,7 +331,14 @@ export default function AddPaymentsPage() {
           bookingDate: draft.bookingDate || toDateInputValue(new Date()),
           bankAccount: draft.bankAccount || null,
           bankAccountText: draft.bankAccountText || draft.bankAccount?.label || '',
-          rows: draft.rows?.length ? draft.rows : [createRow()],
+          rows:
+            draft.rows?.length
+              ? draft.rows.map((row) => ({
+                  ...createRow(),
+                  ...row,
+                  attachments: [],
+                }))
+              : [createRow()],
         })
         setMessage({ type: 'success', text: `Файл ${file.name} загружен` })
       } catch {
@@ -324,6 +348,97 @@ export default function AddPaymentsPage() {
       }
     }
     reader.readAsText(file)
+  }
+
+  function readAttachmentFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const result = String(reader.result || '')
+        const commaIndex = result.indexOf(',')
+        if (commaIndex === -1) {
+          reject(new Error('Не удалось прочитать вложение'))
+          return
+        }
+
+        const metadataPart = result.slice(0, commaIndex)
+        const base64 = result.slice(commaIndex + 1)
+        const contentTypeMatch = metadataPart.match(/^data:(.*?);base64$/)
+
+        resolve({
+          id: crypto.randomUUID(),
+          fileName: file.name,
+          contentType: contentTypeMatch?.[1] || file.type || 'application/octet-stream',
+          base64,
+          fileSize: file.size,
+        })
+      }
+      reader.onerror = () => reject(new Error('Не удалось прочитать вложение'))
+      reader.readAsDataURL(file)
+    })
+  }
+
+  async function handleAttachmentPick(rowId, event) {
+    const files = [...(event.target.files || [])]
+    event.target.value = ''
+
+    if (files.length === 0) {
+      return
+    }
+
+    const oversizedFile = files.find((file) => file.size > 10 * 1024 * 1024)
+    if (oversizedFile) {
+      setMessage({ type: 'error', text: `Файл ${oversizedFile.name} не должен превышать 10 МБ` })
+      return
+    }
+
+    try {
+      const attachments = await Promise.all(files.map((file) => readAttachmentFile(file)))
+      setFormState((current) => ({
+        ...current,
+        rows: current.rows.map((row) =>
+          row.id === rowId
+            ? {
+                ...row,
+                attachments: [...row.attachments, ...attachments],
+              }
+            : row,
+        ),
+      }))
+      setMessage({
+        type: 'success',
+        text:
+          attachments.length === 1
+            ? `Файл ${attachments[0].fileName} прикреплён`
+            : `Прикреплено файлов: ${attachments.length}`,
+      })
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message || 'Не удалось прочитать вложение' })
+    }
+  }
+
+  function handleAttachmentPreview(attachment) {
+    if (!attachment?.base64 || !attachment?.contentType) {
+      setMessage({ type: 'error', text: 'Не удалось открыть вложение' })
+      return
+    }
+
+    const previewUrl = `data:${attachment.contentType};base64,${attachment.base64}`
+    window.open(previewUrl, '_blank', 'noopener,noreferrer')
+  }
+
+  function removeAttachment(rowId, attachmentId) {
+    setFormState((current) => ({
+      ...current,
+      rows: current.rows.map((row) =>
+        row.id === rowId
+          ? {
+              ...row,
+              attachments: row.attachments.filter((attachment) => attachment.id !== attachmentId),
+            }
+          : row,
+      ),
+    }))
   }
 
   return (
@@ -446,20 +561,22 @@ export default function AddPaymentsPage() {
                           <GripVertical size={14} />
                         </td>
                         <td className="add-payments-table__counterparty">
-                          <button
-                            type="button"
-                            className="add-payments-expand"
-                            onClick={() => toggleExpanded(row.id)}
-                            aria-label={row.expanded ? 'Свернуть строку' : 'Развернуть строку'}
-                          >
-                            {row.expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                          </button>
-                          <input
-                            type="text"
-                            value={row.counterpartyName}
-                            onChange={(event) => updateRow(row.id, { counterpartyName: event.target.value })}
-                            placeholder="Название контрагента"
-                          />
+                          <div className="add-payments-table__counterparty-inner">
+                            <button
+                              type="button"
+                              className="add-payments-expand"
+                              onClick={() => toggleExpanded(row.id)}
+                              aria-label={row.expanded ? 'Свернуть строку' : 'Развернуть строку'}
+                            >
+                              {row.expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                            </button>
+                            <input
+                              type="text"
+                              value={row.counterpartyName}
+                              onChange={(event) => updateRow(row.id, { counterpartyName: event.target.value })}
+                              placeholder="Название контрагента"
+                            />
+                          </div>
                         </td>
                         <td>
                           <input
@@ -500,20 +617,56 @@ export default function AddPaymentsPage() {
                           />
                         </td>
                         <td>
-                          <input
-                            type="text"
-                            value={row.comment}
-                            onChange={(event) => updateRow(row.id, { comment: event.target.value })}
-                            placeholder="-"
-                          />
+                          <div className="add-payments-table__comment-cell">
+                            <input
+                              type="text"
+                              value={row.comment}
+                              onChange={(event) => updateRow(row.id, { comment: event.target.value })}
+                              placeholder="-"
+                            />
+                            {row.attachments.length > 0 ? (
+                              <div className="add-payments-attachments-list">
+                                {row.attachments.map((attachment) => (
+                                  <div key={attachment.id} className="add-payments-attachment-item">
+                                    <button
+                                      type="button"
+                                      className="add-payments-attachment-link"
+                                      onClick={() => handleAttachmentPreview(attachment)}
+                                      title={attachment.fileName}
+                                    >
+                                      <Eye size={14} />
+                                      {attachment.fileName}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="add-payments-attachment-remove"
+                                      onClick={() => removeAttachment(row.id, attachment.id)}
+                                      aria-label="Удалить вложение"
+                                    >
+                                      <X size={12} />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
                         </td>
                         <td className="add-payments-table__actions">
-                          <button type="button" onClick={() => duplicateRow(row.id)} aria-label="Дублировать строку">
-                            <Copy size={14} />
-                          </button>
-                          <button type="button" onClick={() => removeRow(row.id)} aria-label="Удалить строку">
-                            <Trash2 size={14} />
-                          </button>
+                          <div className="add-payments-table__actions-inner">
+                            <label className="add-payments-table__icon-button" aria-label="Прикрепить файл">
+                              <Paperclip size={14} />
+                              <input
+                                type="file"
+                                hidden
+                                multiple
+                                accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.xml,.txt"
+                                onChange={(event) => handleAttachmentPick(row.id, event)}
+                              />
+                            </label>
+                            <button type="button" onClick={() => removeRow(row.id)} aria-label="Удалить строку">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                       {row.expanded ? (

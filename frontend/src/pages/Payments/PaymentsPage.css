@@ -215,6 +215,33 @@
   font-weight: 600;
 }
 
+.payments-table__comment {
+  display: grid;
+  gap: 6px;
+}
+
+.payments-table__attachments {
+  display: grid;
+  gap: 4px;
+}
+
+.payments-table__attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  color: #2964ff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.payments-table__attachment span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .payments-table__amount.is-positive {
   color: var(--positive-text);
   font-weight: 700;

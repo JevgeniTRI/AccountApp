@@ -1,8 +1,8 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, Download, Filter, Plus, RefreshCw, Search, SlidersHorizontal } from 'lucide-react'
+import { ArrowLeft, Download, Eye, Filter, Paperclip, Plus, RefreshCw, Search, SlidersHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import LookupField from '../../components/LookupField/LookupField'
-import { fetchPayments } from '../../lib/api'
+import { buildPaymentAttachmentUrl, fetchPayments } from '../../lib/api'
 import {
   formatAmount,
   formatDate,
@@ -62,7 +62,28 @@ function PaymentsTable({ rows }) {
               <td>{payment.vat_amount_eur ? formatAmount(payment.vat_amount_eur) : '-'}</td>
               <td>{payment.income_expense_eur ? formatAmount(payment.income_expense_eur) : '-'}</td>
               <td>{payment.client?.name || '-'}</td>
-              <td>{payment.notes || payment.payment_purpose || '-'}</td>
+              <td>
+                <div className="payments-table__comment">
+                  <span>{payment.notes || payment.payment_purpose || '-'}</span>
+                  {payment.attachments?.length ? (
+                    <div className="payments-table__attachments">
+                      {payment.attachments.map((attachment) => (
+                        <button
+                          key={attachment.id}
+                          type="button"
+                          className="payments-table__attachment"
+                          onClick={() => window.open(buildPaymentAttachmentUrl(attachment.id), '_blank', 'noopener,noreferrer')}
+                          title={attachment.file_name}
+                        >
+                          <Paperclip size={14} />
+                          <span>{attachment.file_name}</span>
+                          <Eye size={14} />
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </td>
               <td>
                 <span className="payments-table__pill">{payment.status.replaceAll('_', ' ')}</span>
               </td>

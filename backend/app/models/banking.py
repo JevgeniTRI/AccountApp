@@ -11,6 +11,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    LargeBinary,
     Numeric,
     String,
     Text,
@@ -173,3 +174,20 @@ class Payment(BigIntPrimaryKeyMixin, TimestampMixin, Base):
         back_populates="payment"
     )
     financial_breakdown: Mapped["PaymentFinancialBreakdown | None"] = relationship(back_populates="payment")
+    attachments: Mapped[list["PaymentAttachment"]] = relationship(back_populates="payment")
+
+
+class PaymentAttachment(BigIntPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "payment_attachments"
+
+    payment_id: Mapped[int] = mapped_column(
+        ForeignKey("payments.id"),
+        nullable=False,
+        index=True,
+    )
+    file_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    content_type: Mapped[str | None] = mapped_column(String(128))
+    file_size: Mapped[int] = mapped_column(nullable=False)
+    file_content: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+    payment: Mapped["Payment"] = relationship(back_populates="attachments")

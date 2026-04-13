@@ -189,18 +189,28 @@
   outline: none;
 }
 
+.add-payments-table__comment-cell {
+  display: grid;
+  gap: 4px;
+}
+
 .add-payments-table__move {
   width: 36px;
   color: var(--muted-text);
 }
 
 .add-payments-table__counterparty {
+  min-width: 220px;
+}
+
+.add-payments-table__counterparty-inner {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .add-payments-expand {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -209,18 +219,66 @@
   color: var(--muted-text);
 }
 
+.add-payments-table__counterparty-inner input {
+  min-width: 0;
+}
+
 .add-payments-table td input.is-positive {
   color: var(--positive-text);
   font-weight: 700;
 }
 
 .add-payments-table__actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  width: 88px;
 }
 
-.add-payments-table__actions button {
+.add-payments-table__actions-inner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.add-payments-table__icon-button,
+.add-payments-table__actions-inner button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-text);
+}
+
+.add-payments-table__icon-button {
+  cursor: pointer;
+}
+
+.add-payments-attachment-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  color: #2964ff;
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.add-payments-attachments-list {
+  display: grid;
+  gap: 4px;
+}
+
+.add-payments-attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.add-payments-attachment-remove {
+  flex: 0 0 auto;
   color: var(--muted-text);
 }
 

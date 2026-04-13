@@ -2,14 +2,17 @@ from datetime import date
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
+from app.models.banking import PaymentAttachment
 from app.models.enums import PaymentDirection
 from app.schemas.payments import (
     PaymentBatchCreateRequest,
     PaymentBatchCreateResponse,
+    PaymentAttachmentSummary,
     PaymentCreateRequest,
     PaymentCreateResponse,
     PaymentListResponse,
@@ -79,6 +82,15 @@ async def get_payments(
                 payment_reference=row["payment_reference"],
                 payment_purpose=row["payment_purpose"],
                 notes=row["notes"],
+                attachments=[
+                    PaymentAttachmentSummary(
+                        id=attachment["id"],
+                        file_name=attachment["file_name"],
+                        content_type=attachment["content_type"],
+                        file_size=attachment["file_size"],
+                    )
+                    for attachment in row["attachments"]
+                ],
                 created_at=row["created_at"],
             )
         )
@@ -131,4 +143,24 @@ async def post_payments_batch(
             )
             for payment in payments
         ]
+    )
+
+
+@router.get("/attachments/{attachment_id}/content")
+async def get_payment_attachment_content(
+    attachment_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    attachment = await db.get(PaymentAttachment, attachment_id)
+    if attachment is None:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+
+    headers = {
+        "Content-Disposition": f'inline; filename="{attachment.file_name}"',
+        "Content-Length": str(attachment.file_size),
+    }
+    return Response(
+        content=attachment.file_content,
+        media_type=attachment.content_type or "application/octet-stream",
+        headers=headers,
     )

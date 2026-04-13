@@ -16,6 +16,13 @@ class PaymentBankSummary(BaseModel):
     name: str
 
 
+class PaymentAttachmentSummary(BaseModel):
+    id: int
+    file_name: str
+    content_type: str | None = None
+    file_size: int
+
+
 class PaymentRow(BaseModel):
     id: int
     booking_date: date | None = None
@@ -37,6 +44,7 @@ class PaymentRow(BaseModel):
     payment_reference: str | None = None
     payment_purpose: str | None = None
     notes: str | None = None
+    attachments: list[PaymentAttachmentSummary] = Field(default_factory=list)
     created_at: datetime
 
 
@@ -63,6 +71,13 @@ class PaymentCreateRequest(BaseModel):
     notes: str | None = None
     exchange_rate_id: int | None = None
     exchange_rate_manual: Decimal | None = None
+    attachments: list["PaymentAttachmentCreateRequest"] = Field(default_factory=list, max_length=20)
+
+
+class PaymentAttachmentCreateRequest(BaseModel):
+    file_name: str = Field(min_length=1, max_length=255)
+    content_type: str | None = Field(default=None, max_length=128)
+    file_content_base64: str = Field(min_length=1)
 
 
 class PaymentCreateResponse(BaseModel):
@@ -78,3 +93,6 @@ class PaymentBatchCreateRequest(BaseModel):
 
 class PaymentBatchCreateResponse(BaseModel):
     items: list[PaymentCreateResponse]
+
+
+PaymentCreateRequest.model_rebuild()

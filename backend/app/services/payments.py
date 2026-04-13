@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import base64
+import binascii
+from collections import defaultdict
 from datetime import date
 from decimal import Decimal
 
@@ -7,10 +10,12 @@ from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.accounting import PaymentFinancialBreakdown
-from app.models.banking import Payment
+from app.models.banking import Payment, PaymentAttachment
 from app.models.enums import PaymentDirection, PaymentKind, PaymentStatus
 from app.models.reference import Bank, Client, Company, CompanyBankAccount, CompanyClient, Counterparty, Currency
 from app.schemas.payments import PaymentCreateRequest
+
+MAX_PAYMENT_ATTACHMENT_BYTES = 10 * 1024 * 1024
 
 
 class PaymentValidationError(Exception):
@@ -116,6 +121,27 @@ async def list_payments(
 
     result = await db.execute(stmt.order_by(Payment.booking_date.desc(), Payment.id.desc()).limit(limit).offset(offset))
     rows = [dict(row._mapping) for row in result]
+
+    payment_ids = [row["id"] for row in rows]
+    attachments_by_payment: dict[int, list[dict]] = defaultdict(list)
+    if payment_ids:
+        attachments_result = await db.execute(
+            select(
+                PaymentAttachment.id,
+                PaymentAttachment.payment_id,
+                PaymentAttachment.file_name,
+                PaymentAttachment.content_type,
+                PaymentAttachment.file_size,
+            )
+            .where(PaymentAttachment.payment_id.in_(payment_ids))
+            .order_by(PaymentAttachment.id.asc())
+        )
+        for attachment_row in attachments_result:
+            data = dict(attachment_row._mapping)
+            attachments_by_payment[data["payment_id"]].append(data)
+
+    for row in rows:
+        row["attachments"] = attachments_by_payment.get(row["id"], [])
     return total, rows
 
 
@@ -197,6 +223,7 @@ async def create_payment(db: AsyncSession, payload: PaymentCreateRequest) -> Pay
     db.add(payment)
     await db.flush()
     await upsert_payment_financial_breakdown(db, payment=payment, payload=payload, currency_code=currency.code)
+    await replace_payment_attachments(db, payment=payment, payload=payload)
     return payment
 
 
@@ -303,3 +330,41 @@ async def get_or_create_counterparty(db: AsyncSession, client_id: int, name: str
     db.add(counterparty)
     await db.flush()
     return counterparty
+
+
+async def replace_payment_attachments(
+    db: AsyncSession,
+    *,
+    payment: Payment,
+    payload: PaymentCreateRequest,
+) -> None:
+    result = await db.execute(select(PaymentAttachment).where(PaymentAttachment.payment_id == payment.id))
+    for existing_attachment in result.scalars().all():
+        await db.delete(existing_attachment)
+    await db.flush()
+
+    if not payload.attachments:
+        return
+
+    for attachment_payload in payload.attachments:
+        try:
+            file_content = base64.b64decode(attachment_payload.file_content_base64, validate=True)
+        except (binascii.Error, ValueError) as exc:
+            raise PaymentValidationError("Attachment content is not valid base64") from exc
+
+        if not file_content:
+            raise PaymentValidationError("Attachment file is empty")
+        if len(file_content) > MAX_PAYMENT_ATTACHMENT_BYTES:
+            raise PaymentValidationError("Attachment file exceeds 10 MB limit")
+
+        db.add(
+            PaymentAttachment(
+                payment_id=payment.id,
+                file_name=attachment_payload.file_name.strip(),
+                content_type=attachment_payload.content_type.strip() if attachment_payload.content_type else None,
+                file_size=len(file_content),
+                file_content=file_content,
+            )
+        )
+
+    await db.flush()

@@ -6,7 +6,7 @@ from app.models.accounting import (
     PaymentFinancialBreakdown,
     PaymentSettlementRuleSnapshot,
 )
-from app.models.banking import BankStatement, BankStatementLine, ExchangeRate, Payment
+from app.models.banking import BankStatement, BankStatementLine, ExchangeRate, Payment, PaymentAttachment
 from app.models.reference import (
     Bank,
     Client,
@@ -35,6 +35,7 @@ __all__ = [
     "LedgerEntry",
     "LedgerPosting",
     "Payment",
+    "PaymentAttachment",
     "PaymentFinancialBreakdown",
     "PaymentSettlementRuleSnapshot",
 ]

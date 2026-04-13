@@ -34,6 +34,10 @@ export async function createPaymentsBatch(items) {
   return data
 }
 
+export function buildPaymentAttachmentUrl(attachmentId) {
+  return `${api.defaults.baseURL}/payments/attachments/${attachmentId}/content`
+}
+
 export async function fetchCompaniesOverview(params) {
   const { data } = await api.get('/companies/overview', { params })
   return data
