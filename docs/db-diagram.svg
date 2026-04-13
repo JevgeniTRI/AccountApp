@@ -1,0 +1,406 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="3028" viewBox="0 0 1760 3028">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#f6f4ee" />
+<stop offset="100%" stop-color="#ece7db" />
+</linearGradient>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#8a6a2f" />
+</marker>
+</defs>
+<rect width="100%" height="100%" fill="url(#bg)" />
+<text x="60" y="38" font-family="Georgia, serif" font-size="28" fill="#2f2417">Accounting DB Diagram</text>
+<text x="60" y="60" font-family="Segoe UI, sans-serif" font-size="14" fill="#64553d">Generated from SQLite schema</text>
+<text x="60" y="92" font-family="Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#7d6742">Reference</text>
+<text x="500" y="92" font-family="Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#7d6742">Payments &amp; Banking</text>
+<text x="940" y="92" font-family="Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#7d6742">Accounting</text>
+<path d="M 500 993.0 C 464 993.0, 876 539.0, 840 539.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="762.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">statement_id</text>
+<path d="M 500 993.0 C 464 993.0, 436 2457.0, 400 2457.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="1721.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">currency_code</text>
+<path d="M 500 539.0 C 464 539.0, 436 2757.0, 400 2757.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="1644.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">company_bank_account_id</text>
+<path d="M 500 539.0 C 464 539.0, 436 2457.0, 400 2457.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="1494.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">opening_balance_currency_code</text>
+<path d="M 500 539.0 C 464 539.0, 436 2457.0, 400 2457.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="1494.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">closing_balance_currency_code</text>
+<path d="M 940 217.0 C 904 217.0, 436 261.0, 400 261.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="235.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">company_id</text>
+<path d="M 940 217.0 C 904 217.0, 436 993.0, 400 993.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="601.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">client_id</text>
+<path d="M 940 217.0 C 904 217.0, 876 1612.0, 840 1612.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="740.0" y="910.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">payment_id</text>
+<path d="M 940 217.0 C 904 217.0, 1316 828.0, 1280 828.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="960.0" y="518.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">ledger_entry_id</text>
+<path d="M 60 2757.0 C 24 2757.0, 436 261.0, 400 261.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="80.0" y="1505.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">company_id</text>
+<path d="M 60 2757.0 C 24 2757.0, 436 2190.0, 400 2190.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="80.0" y="2469.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">bank_id</text>
+<path d="M 60 2757.0 C 24 2757.0, 436 2457.0, 400 2457.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="80.0" y="2603.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">currency_code</text>
+<path d="M 60 1392.0 C 24 1392.0, 436 261.0, 400 261.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="80.0" y="822.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">company_id</text>
+<path d="M 60 1392.0 C 24 1392.0, 436 993.0, 400 993.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="80.0" y="1188.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">client_id</text>
+<path d="M 60 1392.0 C 24 1392.0, 436 605.0, 400 605.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="80.0" y="994.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">responsible_contact_id</text>
+<path d="M 60 605.0 C 24 605.0, 436 261.0, 400 261.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="80.0" y="429.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">company_id</text>
+<path d="M 60 1780.0 C 24 1780.0, 436 993.0, 400 993.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="80.0" y="1382.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">client_id</text>
+<path d="M 500 206.0 C 464 206.0, 436 2457.0, 400 2457.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="1327.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">from_currency_code</text>
+<path d="M 500 206.0 C 464 206.0, 436 2457.0, 400 2457.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="1327.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">to_currency_code</text>
+<path d="M 940 528.0 C 904 528.0, 436 261.0, 400 261.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="390.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">company_id</text>
+<path d="M 940 828.0 C 904 828.0, 436 261.0, 400 261.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="540.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">company_id</text>
+<path d="M 940 828.0 C 904 828.0, 876 1612.0, 840 1612.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="740.0" y="1216.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">payment_id</text>
+<path d="M 940 1117.0 C 904 1117.0, 1316 828.0, 1280 828.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="960.0" y="968.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">ledger_entry_id</text>
+<path d="M 940 1117.0 C 904 1117.0, 1316 528.0, 1280 528.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="960.0" y="818.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">ledger_account_id</text>
+<path d="M 940 1117.0 C 904 1117.0, 436 993.0, 400 993.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="1051.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">client_id</text>
+<path d="M 940 1117.0 C 904 1117.0, 436 1780.0, 400 1780.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="1444.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">counterparty_id</text>
+<path d="M 500 2619.0 C 464 2619.0, 876 1612.0, 840 1612.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="2111.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">payment_id</text>
+<path d="M 500 2187.0 C 464 2187.0, 876 1612.0, 840 1612.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="1895.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">payment_id</text>
+<path d="M 500 1612.0 C 464 1612.0, 876 993.0, 840 993.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="1298.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">bank_statement_line_id</text>
+<path d="M 500 1612.0 C 464 1612.0, 436 261.0, 400 261.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="932.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">company_id</text>
+<path d="M 500 1612.0 C 464 1612.0, 436 2757.0, 400 2757.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="2180.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">company_bank_account_id</text>
+<path d="M 500 1612.0 C 464 1612.0, 436 993.0, 400 993.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="1298.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">client_id</text>
+<path d="M 500 1612.0 C 464 1612.0, 436 1780.0, 400 1780.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="1692.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">counterparty_id</text>
+<path d="M 500 1612.0 C 464 1612.0, 436 2457.0, 400 2457.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="300.0" y="2030.5" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">currency_code</text>
+<path d="M 500 1612.0 C 464 1612.0, 876 206.0, 840 206.0" fill="none" stroke="#b08a41" stroke-width="2" marker-end="url(#arrow)" opacity="0.88" />
+<text x="520.0" y="905.0" font-family="Segoe UI, sans-serif" font-size="11" fill="#6d5a3b">exchange_rate_id</text>
+<rect x="60" y="70" width="340" height="382" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="60" y="70" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="60" y="94" width="340" height="14" fill="#2f2417" />
+<text x="74" y="95" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">companies</text>
+<text x="74" y="128" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">legal_name</text>
+<text x="74" y="150" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">short_name</text>
+<text x="74" y="172" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">registration_number</text>
+<text x="74" y="194" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">vat_number</text>
+<text x="74" y="216" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">country_code</text>
+<text x="74" y="238" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">address_line1</text>
+<text x="74" y="260" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">address_line2</text>
+<text x="74" y="282" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">city</text>
+<text x="74" y="304" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">postal_code</text>
+<text x="74" y="326" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">email</text>
+<text x="74" y="348" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">phone</text>
+<text x="74" y="370" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">status</text>
+<text x="74" y="392" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="74" y="414" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="74" y="436" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="60" y="480" width="340" height="250" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="60" y="480" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="60" y="504" width="340" height="14" fill="#2f2417" />
+<text x="74" y="505" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">company_contacts</text>
+<text x="74" y="538" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_id</text>
+<text x="74" y="560" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">full_name</text>
+<text x="74" y="582" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">role</text>
+<text x="74" y="604" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">email</text>
+<text x="74" y="626" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">phone</text>
+<text x="74" y="648" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">is_primary</text>
+<text x="74" y="670" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="74" y="692" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="74" y="714" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="60" y="758" width="340" height="470" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="60" y="758" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="60" y="782" width="340" height="14" fill="#2f2417" />
+<text x="74" y="783" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">clients</text>
+<text x="74" y="816" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">first_name</text>
+<text x="74" y="838" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">last_name</text>
+<text x="74" y="860" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">middle_name</text>
+<text x="74" y="882" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">full_name</text>
+<text x="74" y="904" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">date_of_birth</text>
+<text x="74" y="926" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">personal_id_number</text>
+<text x="74" y="948" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">country_code</text>
+<text x="74" y="970" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">tax_residency_country_code</text>
+<text x="74" y="992" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">email</text>
+<text x="74" y="1014" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">phone</text>
+<text x="74" y="1036" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">address_line1</text>
+<text x="74" y="1058" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">address_line2</text>
+<text x="74" y="1080" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">city</text>
+<text x="74" y="1102" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">postal_code</text>
+<text x="74" y="1124" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">notes</text>
+<text x="74" y="1146" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">status</text>
+<text x="74" y="1168" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="74" y="1190" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="74" y="1212" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="60" y="1256" width="340" height="272" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="60" y="1256" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="60" y="1280" width="340" height="14" fill="#2f2417" />
+<text x="74" y="1281" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">company_clients</text>
+<text x="74" y="1314" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_id</text>
+<text x="74" y="1336" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_id</text>
+<text x="74" y="1358" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">responsible_contact_id</text>
+<text x="74" y="1380" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">relationship_start_date</text>
+<text x="74" y="1402" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">relationship_end_date</text>
+<text x="74" y="1424" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">status</text>
+<text x="74" y="1446" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">notes</text>
+<text x="74" y="1468" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="74" y="1490" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="74" y="1512" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="60" y="1556" width="340" height="448" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="60" y="1556" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="60" y="1580" width="340" height="14" fill="#2f2417" />
+<text x="74" y="1581" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">counterparties</text>
+<text x="74" y="1614" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_id</text>
+<text x="74" y="1636" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">legal_name</text>
+<text x="74" y="1658" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">short_name</text>
+<text x="74" y="1680" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">registration_number</text>
+<text x="74" y="1702" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">vat_number</text>
+<text x="74" y="1724" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">country_code</text>
+<text x="74" y="1746" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">address_line1</text>
+<text x="74" y="1768" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">address_line2</text>
+<text x="74" y="1790" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">city</text>
+<text x="74" y="1812" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">postal_code</text>
+<text x="74" y="1834" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">email</text>
+<text x="74" y="1856" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">phone</text>
+<text x="74" y="1878" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">website</text>
+<text x="74" y="1900" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">notes</text>
+<text x="74" y="1922" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">status</text>
+<text x="74" y="1944" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="74" y="1966" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="74" y="1988" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="60" y="2032" width="340" height="316" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="60" y="2032" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="60" y="2056" width="340" height="14" fill="#2f2417" />
+<text x="74" y="2057" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">banks</text>
+<text x="74" y="2090" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">name</text>
+<text x="74" y="2112" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">short_name</text>
+<text x="74" y="2134" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">swift_code</text>
+<text x="74" y="2156" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">country_code</text>
+<text x="74" y="2178" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">address_line1</text>
+<text x="74" y="2200" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">address_line2</text>
+<text x="74" y="2222" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">city</text>
+<text x="74" y="2244" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">postal_code</text>
+<text x="74" y="2266" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">website</text>
+<text x="74" y="2288" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="74" y="2310" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="74" y="2332" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="60" y="2376" width="340" height="162" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="60" y="2376" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="60" y="2400" width="340" height="14" fill="#2f2417" />
+<text x="74" y="2401" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">currencies</text>
+<text x="74" y="2434" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">code PK</text>
+<text x="74" y="2456" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">name</text>
+<text x="74" y="2478" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">numeric_code</text>
+<text x="74" y="2500" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">minor_units</text>
+<text x="74" y="2522" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">is_active</text>
+<rect x="60" y="2566" width="340" height="382" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="60" y="2566" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="60" y="2590" width="340" height="14" fill="#2f2417" />
+<text x="74" y="2591" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">company_bank_accounts</text>
+<text x="74" y="2624" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_id</text>
+<text x="74" y="2646" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">bank_id</text>
+<text x="74" y="2668" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">currency_code</text>
+<text x="74" y="2690" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">account_name</text>
+<text x="74" y="2712" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">iban</text>
+<text x="74" y="2734" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">account_number</text>
+<text x="74" y="2756" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">bic</text>
+<text x="74" y="2778" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">bank_branch</text>
+<text x="74" y="2800" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">is_primary</text>
+<text x="74" y="2822" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">is_active</text>
+<text x="74" y="2844" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">opened_at</text>
+<text x="74" y="2866" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">closed_at</text>
+<text x="74" y="2888" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="74" y="2910" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="74" y="2932" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="500" y="70" width="340" height="272" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="500" y="70" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="500" y="94" width="340" height="14" fill="#2f2417" />
+<text x="514" y="95" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">exchange_rates</text>
+<text x="514" y="128" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">from_currency_code</text>
+<text x="514" y="150" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">to_currency_code</text>
+<text x="514" y="172" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">rate_date</text>
+<text x="514" y="194" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">rate_value</text>
+<text x="514" y="216" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">source_name</text>
+<text x="514" y="238" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">source_reference</text>
+<text x="514" y="260" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">is_manual</text>
+<text x="514" y="282" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="514" y="304" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="514" y="326" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="500" y="370" width="340" height="338" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="500" y="370" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="500" y="394" width="340" height="14" fill="#2f2417" />
+<text x="514" y="395" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">bank_statements</text>
+<text x="514" y="428" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_bank_account_id</text>
+<text x="514" y="450" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">statement_number</text>
+<text x="514" y="472" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">period_start</text>
+<text x="514" y="494" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">period_end</text>
+<text x="514" y="516" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">opening_balance</text>
+<text x="514" y="538" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">opening_balance_currency_code</text>
+<text x="514" y="560" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">closing_balance</text>
+<text x="514" y="582" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">closing_balance_currency_code</text>
+<text x="514" y="604" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">source_file_name</text>
+<text x="514" y="626" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">source_file_hash</text>
+<text x="514" y="648" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">imported_at</text>
+<text x="514" y="670" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="514" y="692" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<rect x="500" y="736" width="340" height="514" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="500" y="736" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="500" y="760" width="340" height="14" fill="#2f2417" />
+<text x="514" y="761" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">bank_statement_lines</text>
+<text x="514" y="794" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">statement_id</text>
+<text x="514" y="816" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">line_number</text>
+<text x="514" y="838" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">booking_date</text>
+<text x="514" y="860" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">value_date</text>
+<text x="514" y="882" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">transaction_date</text>
+<text x="514" y="904" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">raw_description</text>
+<text x="514" y="926" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">raw_reference</text>
+<text x="514" y="948" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payer_name</text>
+<text x="514" y="970" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payer_account</text>
+<text x="514" y="992" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payer_bank_bic</text>
+<text x="514" y="1014" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payee_name</text>
+<text x="514" y="1036" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payee_account</text>
+<text x="514" y="1058" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payee_bank_bic</text>
+<text x="514" y="1080" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">debit_amount</text>
+<text x="514" y="1102" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">credit_amount</text>
+<text x="514" y="1124" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">currency_code</text>
+<text x="514" y="1146" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">balance_after_line</text>
+<text x="514" y="1168" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">external_transaction_id</text>
+<text x="514" y="1190" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="514" y="1212" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="514" y="1234" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="500" y="1278" width="340" height="668" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="500" y="1278" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="500" y="1302" width="340" height="14" fill="#2f2417" />
+<text x="514" y="1303" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">payments</text>
+<text x="514" y="1336" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">bank_statement_line_id</text>
+<text x="514" y="1358" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_id</text>
+<text x="514" y="1380" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_bank_account_id</text>
+<text x="514" y="1402" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_id</text>
+<text x="514" y="1424" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">counterparty_id</text>
+<text x="514" y="1446" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payment_kind</text>
+<text x="514" y="1468" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payment_direction</text>
+<text x="514" y="1490" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">booking_date</text>
+<text x="514" y="1512" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">value_date</text>
+<text x="514" y="1534" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">transaction_date</text>
+<text x="514" y="1556" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">amount_original</text>
+<text x="514" y="1578" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">currency_code</text>
+<text x="514" y="1600" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">exchange_rate_id</text>
+<text x="514" y="1622" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">exchange_rate_manual</text>
+<text x="514" y="1644" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">amount_eur</text>
+<text x="514" y="1666" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payer_name</text>
+<text x="514" y="1688" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payer_account</text>
+<text x="514" y="1710" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payee_name</text>
+<text x="514" y="1732" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payee_account</text>
+<text x="514" y="1754" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payment_reference</text>
+<text x="514" y="1776" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payment_purpose</text>
+<text x="514" y="1798" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">status</text>
+<text x="514" y="1820" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">expense_category</text>
+<text x="514" y="1842" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">is_manual</text>
+<text x="514" y="1864" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">notes</text>
+<text x="514" y="1886" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="514" y="1908" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="514" y="1930" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="500" y="1974" width="340" height="426" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="500" y="1974" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="500" y="1998" width="340" height="14" fill="#2f2417" />
+<text x="514" y="1999" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">payment_settlement_rules_snapshot</text>
+<text x="514" y="2032" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payment_id</text>
+<text x="514" y="2054" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">vat_applied</text>
+<text x="514" y="2076" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">vat_rate</text>
+<text x="514" y="2098" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">vat_calculated_from_gross</text>
+<text x="514" y="2120" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_commission_applied</text>
+<text x="514" y="2142" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_commission_type</text>
+<text x="514" y="2164" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_commission_rate</text>
+<text x="514" y="2186" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_commission_fixed_amount</text>
+<text x="514" y="2208" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_commission_applied</text>
+<text x="514" y="2230" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_commission_type</text>
+<text x="514" y="2252" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_commission_rate</text>
+<text x="514" y="2274" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_commission_fixed_amount</text>
+<text x="514" y="2296" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">custom_rule_code</text>
+<text x="514" y="2318" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">rule_description</text>
+<text x="514" y="2340" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="514" y="2362" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="514" y="2384" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="500" y="2428" width="340" height="382" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="500" y="2428" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="500" y="2452" width="340" height="14" fill="#2f2417" />
+<text x="514" y="2453" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">payment_financial_breakdown</text>
+<text x="514" y="2486" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payment_id</text>
+<text x="514" y="2508" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">gross_amount_original</text>
+<text x="514" y="2530" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">gross_amount_eur</text>
+<text x="514" y="2552" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">vat_amount_original</text>
+<text x="514" y="2574" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">vat_amount_eur</text>
+<text x="514" y="2596" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">base_after_vat_original</text>
+<text x="514" y="2618" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">base_after_vat_eur</text>
+<text x="514" y="2640" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_commission_amount_original</text>
+<text x="514" y="2662" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_commission_amount_eur</text>
+<text x="514" y="2684" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_commission_amount_original</text>
+<text x="514" y="2706" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_commission_amount_eur</text>
+<text x="514" y="2728" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">net_client_balance_effect_eur</text>
+<text x="514" y="2750" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="514" y="2772" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="514" y="2794" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="940" y="70" width="340" height="294" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="940" y="70" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="940" y="94" width="340" height="14" fill="#2f2417" />
+<text x="954" y="95" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">client_balance_ledger</text>
+<text x="954" y="128" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_id</text>
+<text x="954" y="150" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_id</text>
+<text x="954" y="172" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payment_id</text>
+<text x="954" y="194" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">ledger_entry_id</text>
+<text x="954" y="216" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">entry_date</text>
+<text x="954" y="238" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">entry_type</text>
+<text x="954" y="260" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">amount_eur</text>
+<text x="954" y="282" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">description</text>
+<text x="954" y="304" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="954" y="326" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="954" y="348" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="940" y="392" width="340" height="272" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="940" y="392" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="940" y="416" width="340" height="14" fill="#2f2417" />
+<text x="954" y="417" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">ledger_accounts</text>
+<text x="954" y="450" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_id</text>
+<text x="954" y="472" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">account_code</text>
+<text x="954" y="494" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">account_name</text>
+<text x="954" y="516" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">account_type</text>
+<text x="954" y="538" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">purpose_code</text>
+<text x="954" y="560" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">is_system</text>
+<text x="954" y="582" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">is_active</text>
+<text x="954" y="604" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="954" y="626" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="954" y="648" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="940" y="692" width="340" height="272" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="940" y="692" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="940" y="716" width="340" height="14" fill="#2f2417" />
+<text x="954" y="717" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">ledger_entries</text>
+<text x="954" y="750" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">company_id</text>
+<text x="954" y="772" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">payment_id</text>
+<text x="954" y="794" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">entry_date</text>
+<text x="954" y="816" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">entry_kind</text>
+<text x="954" y="838" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">description</text>
+<text x="954" y="860" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">reference_number</text>
+<text x="954" y="882" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">status</text>
+<text x="954" y="904" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+<text x="954" y="926" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="954" y="948" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">updated_at</text>
+<rect x="940" y="992" width="340" height="250" rx="14" fill="#fffdfa" stroke="#2c2720" stroke-width="1.4" />
+<rect x="940" y="992" width="340" height="38" rx="14" fill="#2f2417" />
+<rect x="940" y="1016" width="340" height="14" fill="#2f2417" />
+<text x="954" y="1017" font-family="Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#f7efe1">ledger_postings</text>
+<text x="954" y="1050" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">ledger_entry_id</text>
+<text x="954" y="1072" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">ledger_account_id</text>
+<text x="954" y="1094" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">client_id</text>
+<text x="954" y="1116" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">counterparty_id</text>
+<text x="954" y="1138" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">debit_amount_eur</text>
+<text x="954" y="1160" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">credit_amount_eur</text>
+<text x="954" y="1182" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">description</text>
+<text x="954" y="1204" font-family="Consolas, monospace" font-size="13" font-weight="400" fill="#4f4432">created_at</text>
+<text x="954" y="1226" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#2f2417">id PK</text>
+</svg>

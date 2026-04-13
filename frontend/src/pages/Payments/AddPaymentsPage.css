@@ -1,0 +1,333 @@
+.add-payments-page {
+  padding: 28px 24px 32px;
+}
+
+.add-payments-shell {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.add-payments-card {
+  overflow: hidden;
+  border: 1px solid rgba(54, 64, 88, 0.1);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 24px 80px rgba(13, 18, 34, 0.08);
+}
+
+.add-payments-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 18px 16px;
+}
+
+.add-payments-header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.add-payments-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--text-main);
+}
+
+.add-payments-toolbar {
+  display: grid;
+  gap: 18px;
+  padding: 0 18px 18px;
+}
+
+.add-payments-topline {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.add-payments-field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.add-payments-field--compact {
+  flex-basis: 140px;
+}
+
+.add-payments-field--date {
+  flex-basis: 180px;
+}
+
+.add-payments-field span {
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.add-payments-field input,
+.add-payments-input-wrap {
+  min-height: 42px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(32, 36, 48, 0.05);
+}
+
+.add-payments-field input {
+  width: 100%;
+  padding: 10px 14px;
+}
+
+.add-payments-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+}
+
+.add-payments-input-wrap input {
+  min-height: 40px;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.add-payments-input-wrap svg {
+  color: var(--muted-text);
+}
+
+.add-payments-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.add-payments-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-main);
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(23, 27, 44, 0.05);
+}
+
+.add-payments-message {
+  margin: 0 18px 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.add-payments-message.is-success {
+  background: rgba(41, 153, 84, 0.1);
+  color: var(--positive-text);
+}
+
+.add-payments-message.is-error {
+  background: rgba(210, 68, 64, 0.08);
+  color: var(--danger-text);
+}
+
+.add-payments-table-wrap {
+  overflow-x: auto;
+  border-top: 1px solid rgba(54, 64, 88, 0.08);
+  border-bottom: 1px solid rgba(54, 64, 88, 0.08);
+}
+
+.add-payments-table {
+  width: 100%;
+  min-width: 1080px;
+  border-collapse: collapse;
+}
+
+.add-payments-table th,
+.add-payments-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(54, 64, 88, 0.08);
+  vertical-align: middle;
+}
+
+.add-payments-table th {
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(244, 246, 252, 0.82);
+  text-align: left;
+}
+
+.add-payments-table tbody tr:hover td {
+  background: rgba(250, 251, 255, 0.8);
+}
+
+.add-payments-table td input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-main);
+}
+
+.add-payments-table td input:focus {
+  border-color: var(--line-soft);
+  background: #fff;
+  outline: none;
+}
+
+.add-payments-table__move {
+  width: 36px;
+  color: var(--muted-text);
+}
+
+.add-payments-table__counterparty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-payments-expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--muted-text);
+}
+
+.add-payments-table td input.is-positive {
+  color: var(--positive-text);
+  font-weight: 700;
+}
+
+.add-payments-table__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-payments-table__actions button {
+  color: var(--muted-text);
+}
+
+.add-payments-breakdown-row td {
+  background: rgba(248, 249, 252, 0.9);
+}
+
+.add-payments-breakdown {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.add-payments-breakdown div {
+  display: grid;
+  gap: 6px;
+}
+
+.add-payments-breakdown span {
+  color: var(--muted-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.add-payments-breakdown strong {
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.add-payments-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+}
+
+.add-payments-balance {
+  display: grid;
+  gap: 10px;
+  min-width: 280px;
+}
+
+.add-payments-balance div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--text-main);
+}
+
+.add-payments-balance span {
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.add-payments-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 8px 0;
+}
+
+.add-payments-footer__group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.add-payments-footer__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-main);
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(23, 27, 44, 0.05);
+}
+
+.add-payments-footer__button.is-primary {
+  color: #356b1f;
+}
+
+.add-payments-footer__button.is-danger {
+  color: #db3e3e;
+}
+
+@media (max-width: 980px) {
+  .add-payments-page {
+    padding: 20px 14px 26px;
+  }
+
+  .add-payments-topline,
+  .add-payments-bottom,
+  .add-payments-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .add-payments-breakdown {
+    grid-template-columns: 1fr 1fr;
+  }
+}
