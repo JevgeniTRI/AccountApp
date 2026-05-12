@@ -32,7 +32,7 @@ class CompanyCreateRequest(BaseModel):
     phone: str | None = Field(default=None, max_length=64)
     status: str | None = Field(default="active", max_length=32)
     contacts: list["CompanyContactCreateRequest"] = Field(default_factory=list)
-    bank_accounts: list["CompanyBankAccountCreateRequest"] = Field(default_factory=list)
+    bank_accounts: list["CompanyBankAccountCreateRequest"] | None = None
 
 
 class CompanyResponse(BaseModel):
@@ -51,8 +51,8 @@ class CompanyOverviewItem(BaseModel):
 
 class BankAccountOverviewItem(BaseModel):
     id: int
-    company_id: int
-    company_name: str
+    company_id: int | None = None
+    company_name: str | None = None
     bank_id: int
     bank_label: str
     bank_full_name: str
@@ -70,8 +70,8 @@ class BankAccountOverviewItem(BaseModel):
 class BankAccountLookupItem(BaseModel):
     id: int
     label: str
-    company_id: int
-    company_name: str
+    company_id: int | None = None
+    company_name: str | None = None
     bank_id: int
     bank_name: str
     currency_code: str
@@ -102,7 +102,7 @@ class CompanyBankAccountCreateRequest(BaseModel):
 
 
 class BankAccountCreateRequest(BaseModel):
-    company_id: int
+    company_id: int | None = None
     bank_id: int | None = None
     bank_name: str | None = Field(default=None, max_length=255)
     bank_short_name: str | None = Field(default=None, max_length=128)
@@ -127,9 +127,36 @@ class BankAccountCreateRequest(BaseModel):
 
 class BankAccountCreateResponse(BaseModel):
     id: int
-    company_id: int
+    company_id: int | None = None
     bank_id: int
     currency_code: str
+
+
+class BankAccountDetailResponse(BaseModel):
+    id: int
+    company_id: int | None = None
+    company_label: str | None = None
+    bank_id: int
+    bank_label: str
+    bank_name: str
+    bank_short_name: str | None = None
+    bank_swift_code: str | None = None
+    bank_country_code: str | None = None
+    bank_address_line1: str | None = None
+    bank_address_line2: str | None = None
+    bank_city: str | None = None
+    bank_postal_code: str | None = None
+    bank_website: str | None = None
+    currency_code: str
+    account_name: str | None = None
+    iban: str | None = None
+    account_number: str | None = None
+    bic: str | None = None
+    bank_branch: str | None = None
+    is_primary: bool
+    is_active: bool
+    opened_at: date | None = None
+    closed_at: date | None = None
 
 
 class CompanyContactResponse(BaseModel):
@@ -179,6 +206,12 @@ class BankCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     short_name: str | None = Field(default=None, max_length=128)
     swift_code: str | None = Field(default=None, max_length=32)
+    country_code: str | None = Field(default=None, max_length=2)
+    address_line1: str | None = Field(default=None, max_length=255)
+    address_line2: str | None = Field(default=None, max_length=255)
+    city: str | None = Field(default=None, max_length=128)
+    postal_code: str | None = Field(default=None, max_length=32)
+    website: str | None = Field(default=None, max_length=255)
 
 
 class BankResponse(BaseModel):
@@ -186,6 +219,21 @@ class BankResponse(BaseModel):
     name: str
     short_name: str | None = None
     swift_code: str | None = None
+    country_code: str | None = None
+    address_line1: str | None = None
+    address_line2: str | None = None
+    city: str | None = None
+    postal_code: str | None = None
+    website: str | None = None
+
+
+class BankOverviewItem(BaseModel):
+    id: int
+    label: str
+    name: str
+    short_name: str | None = None
+    swift_code: str | None = None
+    bank_address: str | None = None
 
 
 class ClientCreateRequest(BaseModel):

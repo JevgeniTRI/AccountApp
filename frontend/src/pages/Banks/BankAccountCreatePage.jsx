@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, Save } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { createBankAccount } from '../../lib/api'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { createBankAccount, fetchBankAccount, updateBankAccount } from '../../lib/api'
 import { findLookupOption, loadLookup, requireLookupValue } from '../Payments/paymentUtils'
 import './BankAccountCreatePage.css'
 
@@ -18,7 +18,7 @@ function createInitialState() {
     bankCity: '',
     bankPostalCode: '',
     bankWebsite: '',
-    currencyText: '',
+    currencyText: 'EUR',
     accountName: '',
     iban: '',
     accountNumber: '',
@@ -32,7 +32,10 @@ function createInitialState() {
 }
 
 export default function BankAccountCreatePage() {
+  const { bankAccountId } = useParams()
+  const isEditMode = Boolean(bankAccountId)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [formState, setFormState] = useState(() => createInitialState())
   const [lookupState, setLookupState] = useState({
     companies: [],
@@ -49,13 +52,18 @@ export default function BankAccountCreatePage() {
   useEffect(() => {
     let cancelled = false
 
-    async function loadLookups() {
+    async function loadData() {
       try {
         const [companies, banks, currencies] = await Promise.all([
           loadLookup('companies', ''),
           loadLookup('banks', ''),
           loadLookup('currencies', ''),
         ])
+
+        let account = null
+        if (isEditMode && bankAccountId) {
+          account = await fetchBankAccount(bankAccountId)
+        }
 
         if (!cancelled) {
           setLookupState({
@@ -64,6 +72,52 @@ export default function BankAccountCreatePage() {
             currencies,
             isLoading: false,
           })
+
+          if (account) {
+            const companyOption = account.company_id ? companies.find((item) => item.value === account.company_id) : null
+            const bankOption = banks.find((item) => item.value === account.bank_id)
+
+            setFormState({
+              companyText: companyOption?.label || account.company_label || '',
+              bankLookupText: bankOption?.label || account.bank_label || '',
+              bankName: account.bank_name || '',
+              bankShortName: account.bank_short_name || '',
+              bankSwiftCode: account.bank_swift_code || '',
+              bankCountryCode: account.bank_country_code || '',
+              bankAddressLine1: account.bank_address_line1 || '',
+              bankAddressLine2: account.bank_address_line2 || '',
+              bankCity: account.bank_city || '',
+              bankPostalCode: account.bank_postal_code || '',
+              bankWebsite: account.bank_website || '',
+              currencyText: account.currency_code || 'EUR',
+              accountName: account.account_name || '',
+              iban: account.iban || '',
+              accountNumber: account.account_number || '',
+              bic: account.bic || '',
+              bankBranch: account.bank_branch || '',
+              openedAt: account.opened_at || '',
+              closedAt: account.closed_at || '',
+              isPrimary: account.is_primary,
+              isActive: account.is_active,
+            })
+          } else {
+            const preselectedBankIdRaw = searchParams.get('bankId')
+            const preselectedCompanyIdRaw = searchParams.get('companyId')
+            const preselectedBankId = preselectedBankIdRaw ? Number(preselectedBankIdRaw) : null
+            const preselectedCompanyId = preselectedCompanyIdRaw ? Number(preselectedCompanyIdRaw) : null
+            const bankOption = preselectedBankId ? banks.find((item) => item.value === preselectedBankId) : null
+            const companyOption = preselectedCompanyId
+              ? companies.find((item) => item.value === preselectedCompanyId)
+              : null
+
+            if (bankOption || companyOption) {
+              setFormState((current) => ({
+                ...current,
+                bankLookupText: bankOption?.label || current.bankLookupText,
+                companyText: companyOption?.label || current.companyText,
+              }))
+            }
+          }
         }
       } catch {
         if (!cancelled) {
@@ -77,12 +131,12 @@ export default function BankAccountCreatePage() {
       }
     }
 
-    loadLookups()
+    loadData()
 
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [bankAccountId, isEditMode, searchParams])
 
   function updateField(name, value) {
     setFormState((current) => ({ ...current, [name]: value }))
@@ -93,18 +147,20 @@ export default function BankAccountCreatePage() {
     setSubmitState({ isSubmitting: true, error: '', success: '' })
 
     try {
-      const company = requireLookupValue(
-        'companies',
-        null,
-        formState.companyText,
-        lookupState.companies,
-        'Нужно выбрать существующую компанию',
-      )
+      const company = formState.companyText.trim()
+        ? requireLookupValue(
+            'companies',
+            null,
+            formState.companyText,
+            lookupState.companies,
+            'Если компания указана, нужно выбрать её из существующего списка',
+          )
+        : null
 
       const currency = requireLookupValue(
         'currencies',
         null,
-        formState.currencyText || '',
+        formState.currencyText || 'EUR',
         lookupState.currencies,
         'Нужно выбрать существующую валюту',
       )
@@ -112,7 +168,7 @@ export default function BankAccountCreatePage() {
       const matchedBank = findLookupOption('banks', formState.bankLookupText, lookupState.banks)
 
       const payload = {
-        company_id: company.value,
+        company_id: company?.value ?? null,
         bank_id: matchedBank?.value ?? null,
         bank_name: matchedBank ? null : formState.bankName.trim() || null,
         bank_short_name: matchedBank ? null : formState.bankShortName.trim() || null,
@@ -139,8 +195,17 @@ export default function BankAccountCreatePage() {
         throw new Error('Укажите существующий банк или заполните реквизиты нового банка')
       }
 
-      await createBankAccount(payload)
-      setSubmitState({ isSubmitting: false, error: '', success: 'Счёт сохранён' })
+      if (isEditMode && bankAccountId) {
+        await updateBankAccount(bankAccountId, payload)
+      } else {
+        await createBankAccount(payload)
+      }
+
+      setSubmitState({
+        isSubmitting: false,
+        error: '',
+        success: isEditMode ? 'Счёт обновлён' : 'Счёт сохранён',
+      })
       window.setTimeout(() => navigate('/banks'), 500)
     } catch (error) {
       setSubmitState({
@@ -159,8 +224,8 @@ export default function BankAccountCreatePage() {
             <ArrowLeft size={18} />
           </button>
           <div>
-            <h1>Добавить счёт</h1>
-            <p>Форма покрывает поля `banks` и `company_bank_accounts`.</p>
+            <h1>{isEditMode ? 'Редактировать счёт' : 'Добавить счёт'}</h1>
+            <p>Счёт можно создать без компании и привязать позже через редактирование.</p>
           </div>
         </div>
 
@@ -169,14 +234,13 @@ export default function BankAccountCreatePage() {
             <div className="bank-account-create-section__title">Привязка счёта</div>
             <div className="bank-account-create-grid bank-account-create-grid--3">
               <label className="bank-account-create-field">
-                <span>Компания *</span>
+                <span>Компания</span>
                 <input
                   list="bank-account-company-options"
                   type="text"
                   value={formState.companyText}
                   onChange={(event) => updateField('companyText', event.target.value)}
-                  placeholder={lookupState.isLoading ? 'Загрузка...' : 'Выберите существующую компанию'}
-                  required
+                  placeholder={lookupState.isLoading ? 'Загрузка...' : 'Можно оставить пустым'}
                 />
               </label>
               <label className="bank-account-create-field">
@@ -390,7 +454,7 @@ export default function BankAccountCreatePage() {
               </button>
               <button type="submit" className="bank-account-create-button is-primary" disabled={submitState.isSubmitting}>
                 <Save size={16} />
-                {submitState.isSubmitting ? 'Сохраняю...' : 'Сохранить счёт'}
+                {submitState.isSubmitting ? 'Сохраняю...' : isEditMode ? 'Сохранить изменения' : 'Сохранить счёт'}
               </button>
             </div>
           </div>

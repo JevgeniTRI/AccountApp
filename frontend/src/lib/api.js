@@ -67,6 +67,11 @@ export async function fetchBankAccountsOverview(params) {
   return data
 }
 
+export async function fetchBanksOverview(params) {
+  const { data } = await api.get('/banks/overview', { params })
+  return data
+}
+
 export async function fetchCompanyBankAccountsLookup(query = '', limit = 20) {
   const { data } = await api.get('/company-bank-accounts', {
     params: {
@@ -79,6 +84,21 @@ export async function fetchCompanyBankAccountsLookup(query = '', limit = 20) {
 
 export async function createBankAccount(payload) {
   const { data } = await api.post('/bank-accounts', payload)
+  return data
+}
+
+export async function fetchBankAccount(bankAccountId) {
+  const { data } = await api.get(`/bank-accounts/${bankAccountId}`)
+  return data
+}
+
+export async function updateBankAccount(bankAccountId, payload) {
+  const { data } = await api.put(`/bank-accounts/${bankAccountId}`, payload)
+  return data
+}
+
+export async function createBank(payload) {
+  const { data } = await api.post('/banks', payload)
   return data
 }
 

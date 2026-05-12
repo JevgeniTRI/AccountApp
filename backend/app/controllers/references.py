@@ -8,9 +8,11 @@ from app.db.session import get_db
 from app.schemas.reference import (
     BankAccountCreateRequest,
     BankAccountCreateResponse,
+    BankAccountDetailResponse,
     BankAccountLookupItem,
     BankAccountOverviewItem,
     BankCreateRequest,
+    BankOverviewItem,
     ClientDetailResponse,
     BankResponse,
     ClientCreateRequest,
@@ -42,9 +44,11 @@ from app.services.reference import (
     format_bank_display_name,
     format_company_display_name,
     get_client_detail,
+    get_bank_account_detail,
     get_company_detail,
     get_counterparty_detail,
     list_bank_account_overview,
+    list_bank_overview,
     list_client_overview,
     list_company_overview,
     list_counterparty_overview,
@@ -55,6 +59,7 @@ from app.services.reference import (
     search_counterparties,
     search_currencies,
     update_client,
+    update_bank_account,
     update_company,
     update_counterparty,
 )
@@ -164,7 +169,27 @@ async def post_bank(payload: BankCreateRequest, db: AsyncSession = Depends(get_d
     except SQLAlchemyError as exc:
         await db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create bank") from exc
-    return BankResponse(id=bank.id, name=bank.name, short_name=bank.short_name, swift_code=bank.swift_code)
+    return BankResponse(
+        id=bank.id,
+        name=bank.name,
+        short_name=bank.short_name,
+        swift_code=bank.swift_code,
+        country_code=bank.country_code,
+        address_line1=bank.address_line1,
+        address_line2=bank.address_line2,
+        city=bank.city,
+        postal_code=bank.postal_code,
+        website=bank.website,
+    )
+
+
+@router.get("/banks/overview", response_model=list[BankOverviewItem])
+async def get_banks_overview(
+    query: str | None = None,
+    limit: int = Query(default=200, ge=1, le=500),
+    db: AsyncSession = Depends(get_db),
+) -> list[BankOverviewItem]:
+    return await list_bank_overview(db, query=query, limit=limit)
 
 
 @router.get("/bank-accounts/overview", response_model=list[BankAccountOverviewItem])
@@ -199,6 +224,38 @@ async def post_bank_account(
     except SQLAlchemyError as exc:
         await db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create bank account") from exc
+
+    return BankAccountCreateResponse(
+        id=account.id,
+        company_id=account.company_id,
+        bank_id=account.bank_id,
+        currency_code=account.currency_code,
+    )
+
+
+@router.get("/bank-accounts/{bank_account_id}", response_model=BankAccountDetailResponse)
+async def get_bank_account(bank_account_id: int, db: AsyncSession = Depends(get_db)) -> BankAccountDetailResponse:
+    account = await get_bank_account_detail(db, bank_account_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Bank account not found")
+    return account
+
+
+@router.put("/bank-accounts/{bank_account_id}", response_model=BankAccountCreateResponse)
+async def put_bank_account(
+    bank_account_id: int,
+    payload: BankAccountCreateRequest,
+    db: AsyncSession = Depends(get_db),
+) -> BankAccountCreateResponse:
+    try:
+        account = await update_bank_account(db, bank_account_id, payload)
+        await db.commit()
+    except ValueError as exc:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except SQLAlchemyError as exc:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update bank account") from exc
 
     return BankAccountCreateResponse(
         id=account.id,

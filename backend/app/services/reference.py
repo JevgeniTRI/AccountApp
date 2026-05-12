@@ -8,9 +8,11 @@ from sqlalchemy.orm import selectinload
 from app.models.reference import Bank, Client, Company, CompanyBankAccount, CompanyContact, Counterparty, Currency
 from app.schemas.reference import (
     BankAccountCreateRequest,
+    BankAccountDetailResponse,
     BankAccountLookupItem,
     BankAccountOverviewItem,
     BankCreateRequest,
+    BankOverviewItem,
     ClientCreateRequest,
     ClientDetailResponse,
     ClientOverviewItem,
@@ -74,7 +76,7 @@ async def create_company(db: AsyncSession, payload: CompanyCreateRequest) -> Com
     for contact_payload in payload.contacts:
         await add_company_contact(db, company.id, contact_payload)
 
-    for account_payload in payload.bank_accounts:
+    for account_payload in payload.bank_accounts or []:
         await add_company_bank_account(db, company.id, account_payload)
 
     return company
@@ -302,38 +304,39 @@ async def update_company(db: AsyncSession, company_id: int, payload: CompanyCrea
         if contact.id not in seen_contact_ids:
             await db.delete(contact)
 
-    existing_accounts = {account.id: account for account in company.bank_accounts}
-    seen_account_ids: set[int] = set()
-    for account_payload in payload.bank_accounts:
-        currency = await db.get(Currency, account_payload.currency_code.strip().upper())
-        if currency is None:
-            raise ValueError("Currency not found")
+    if payload.bank_accounts is not None:
+        existing_accounts = {account.id: account for account in company.bank_accounts}
+        seen_account_ids: set[int] = set()
+        for account_payload in payload.bank_accounts:
+            currency = await db.get(Currency, account_payload.currency_code.strip().upper())
+            if currency is None:
+                raise ValueError("Currency not found")
 
-        bank = await db.get(Bank, account_payload.bank_id)
-        if bank is None:
-            raise ValueError("Bank not found")
+            bank = await db.get(Bank, account_payload.bank_id)
+            if bank is None:
+                raise ValueError("Bank not found")
 
-        if account_payload.id is not None and account_payload.id in existing_accounts:
-            account = existing_accounts[account_payload.id]
-            account.bank_id = bank.id
-            account.currency_code = currency.code
-            account.account_name = account_payload.account_name.strip() if account_payload.account_name else None
-            account.iban = account_payload.iban.strip() if account_payload.iban else None
-            account.account_number = account_payload.account_number.strip() if account_payload.account_number else None
-            account.bic = account_payload.bic.strip() if account_payload.bic else None
-            account.bank_branch = account_payload.bank_branch.strip() if account_payload.bank_branch else None
-            account.is_primary = account_payload.is_primary
-            account.is_active = account_payload.is_active
-            account.opened_at = account_payload.opened_at
-            account.closed_at = account_payload.closed_at
-            seen_account_ids.add(account.id)
-        else:
-            account = await add_company_bank_account(db, company.id, account_payload)
-            seen_account_ids.add(account.id)
+            if account_payload.id is not None and account_payload.id in existing_accounts:
+                account = existing_accounts[account_payload.id]
+                account.bank_id = bank.id
+                account.currency_code = currency.code
+                account.account_name = account_payload.account_name.strip() if account_payload.account_name else None
+                account.iban = account_payload.iban.strip() if account_payload.iban else None
+                account.account_number = account_payload.account_number.strip() if account_payload.account_number else None
+                account.bic = account_payload.bic.strip() if account_payload.bic else None
+                account.bank_branch = account_payload.bank_branch.strip() if account_payload.bank_branch else None
+                account.is_primary = account_payload.is_primary
+                account.is_active = account_payload.is_active
+                account.opened_at = account_payload.opened_at
+                account.closed_at = account_payload.closed_at
+                seen_account_ids.add(account.id)
+            else:
+                account = await add_company_bank_account(db, company.id, account_payload)
+                seen_account_ids.add(account.id)
 
-    for account in company.bank_accounts:
-        if account.id not in seen_account_ids:
-            account.is_active = False
+        for account in company.bank_accounts:
+            if account.id not in seen_account_ids:
+                account.is_active = False
 
     await db.flush()
     return company
@@ -365,7 +368,7 @@ async def list_bank_account_overview(
 
     if query:
         pattern = f"%{query.strip()}%"
-        stmt = stmt.join(CompanyBankAccount.company).join(CompanyBankAccount.bank).where(
+        stmt = stmt.outerjoin(CompanyBankAccount.company).join(CompanyBankAccount.bank).where(
             or_(
                 Company.legal_name.ilike(pattern),
                 Company.short_name.ilike(pattern),
@@ -384,7 +387,7 @@ async def list_bank_account_overview(
     for account in accounts:
         company = account.company
         bank = account.bank
-        if company is None or bank is None:
+        if bank is None:
             continue
 
         address_parts = [
@@ -398,8 +401,8 @@ async def list_bank_account_overview(
         items.append(
             BankAccountOverviewItem(
                 id=account.id,
-                company_id=company.id,
-                company_name=format_company_display_name(company),
+                company_id=company.id if company is not None else None,
+                company_name=format_company_display_name(company) if company is not None else None,
                 bank_id=bank.id,
                 bank_label=format_bank_display_name(bank),
                 bank_full_name=bank.name,
@@ -430,7 +433,10 @@ async def search_company_bank_accounts(
             selectinload(CompanyBankAccount.company),
             selectinload(CompanyBankAccount.bank),
         )
-        .where(CompanyBankAccount.is_active.is_(True))
+        .where(
+            CompanyBankAccount.is_active.is_(True),
+            CompanyBankAccount.company_id.is_not(None),
+        )
         .order_by(Company.legal_name.asc(), Bank.name.asc(), CompanyBankAccount.id.asc())
         .join(CompanyBankAccount.company)
         .join(CompanyBankAccount.bank)
@@ -490,64 +496,176 @@ async def search_banks(db: AsyncSession, query: str | None, limit: int) -> list[
     return list(result.scalars().all())
 
 
+async def list_bank_overview(
+    db: AsyncSession,
+    *,
+    query: str | None,
+    limit: int,
+) -> list[BankOverviewItem]:
+    stmt = select(Bank).order_by(Bank.name.asc(), Bank.id.asc()).limit(limit)
+    if query:
+        pattern = f"%{query.strip()}%"
+        stmt = stmt.where(
+            or_(
+                Bank.name.ilike(pattern),
+                Bank.short_name.ilike(pattern),
+                Bank.swift_code.ilike(pattern),
+                Bank.city.ilike(pattern),
+                Bank.country_code.ilike(pattern),
+            )
+        )
+
+    result = await db.execute(stmt)
+    banks = list(result.scalars().all())
+
+    items: list[BankOverviewItem] = []
+    for bank in banks:
+        address_parts = [
+            bank.address_line1,
+            bank.address_line2,
+            " ".join(part for part in [bank.postal_code, bank.city] if part),
+            bank.country_code,
+        ]
+        bank_address = ", ".join(part for part in address_parts if part)
+
+        items.append(
+            BankOverviewItem(
+                id=bank.id,
+                label=format_bank_display_name(bank),
+                name=bank.name,
+                short_name=bank.short_name,
+                swift_code=bank.swift_code,
+                bank_address=bank_address or None,
+            )
+        )
+
+    return items
+
+
 async def create_bank(db: AsyncSession, payload: BankCreateRequest) -> Bank:
     bank = Bank(
         name=payload.name.strip(),
         short_name=payload.short_name.strip() if payload.short_name else None,
         swift_code=payload.swift_code.strip() if payload.swift_code else None,
+        country_code=payload.country_code.strip().upper() if payload.country_code else None,
+        address_line1=payload.address_line1.strip() if payload.address_line1 else None,
+        address_line2=payload.address_line2.strip() if payload.address_line2 else None,
+        city=payload.city.strip() if payload.city else None,
+        postal_code=payload.postal_code.strip() if payload.postal_code else None,
+        website=payload.website.strip() if payload.website else None,
     )
     db.add(bank)
     await db.flush()
     return bank
 
 
-async def create_bank_account(db: AsyncSession, payload: BankAccountCreateRequest) -> CompanyBankAccount:
-    company = await db.get(Company, payload.company_id)
+async def resolve_company_for_bank_account(db: AsyncSession, company_id: int | None) -> Company | None:
+    if company_id is None:
+        return None
+
+    company = await db.get(Company, company_id)
     if company is None:
         raise ValueError("Company not found")
+    return company
 
-    currency = await db.get(Currency, payload.currency_code.strip().upper())
-    if currency is None:
-        raise ValueError("Currency not found")
 
-    bank: Bank | None = None
+async def resolve_bank_for_bank_account(db: AsyncSession, payload: BankAccountCreateRequest) -> Bank:
     if payload.bank_id is not None:
         bank = await db.get(Bank, payload.bank_id)
         if bank is None:
             raise ValueError("Bank not found")
-    else:
-        normalized_name = (payload.bank_name or "").strip()
-        normalized_short = (payload.bank_short_name or "").strip()
-        if not normalized_name and not normalized_short:
-            raise ValueError("Bank name or short name is required")
+        return bank
 
-        search_name = normalized_name or normalized_short
-        result = await db.execute(
-            select(Bank).where(
-                or_(
-                    func.lower(Bank.name) == search_name.lower(),
-                    func.lower(Bank.short_name) == search_name.lower(),
-                )
+    normalized_name = (payload.bank_name or "").strip()
+    normalized_short = (payload.bank_short_name or "").strip()
+    if not normalized_name and not normalized_short:
+        raise ValueError("Bank name or short name is required")
+
+    comparisons = []
+    for value in [normalized_name, normalized_short]:
+        if value:
+            comparisons.extend(
+                [
+                    func.lower(Bank.name) == value.lower(),
+                    func.lower(Bank.short_name) == value.lower(),
+                ]
             )
+
+    result = await db.execute(select(Bank).where(or_(*comparisons)))
+    bank = result.scalars().first()
+    if bank is not None:
+        return bank
+
+    bank = Bank(
+        name=normalized_name or normalized_short,
+        short_name=normalized_short or None,
+        swift_code=payload.bank_swift_code.strip() if payload.bank_swift_code else None,
+        country_code=payload.bank_country_code.strip().upper() if payload.bank_country_code else None,
+        address_line1=payload.bank_address_line1.strip() if payload.bank_address_line1 else None,
+        address_line2=payload.bank_address_line2.strip() if payload.bank_address_line2 else None,
+        city=payload.bank_city.strip() if payload.bank_city else None,
+        postal_code=payload.bank_postal_code.strip() if payload.bank_postal_code else None,
+        website=payload.bank_website.strip() if payload.bank_website else None,
+    )
+    db.add(bank)
+    await db.flush()
+    return bank
+
+
+async def get_bank_account_detail(db: AsyncSession, bank_account_id: int) -> BankAccountDetailResponse | None:
+    stmt = (
+        select(CompanyBankAccount)
+        .options(
+            selectinload(CompanyBankAccount.company),
+            selectinload(CompanyBankAccount.bank),
         )
-        bank = result.scalar_one_or_none()
-        if bank is None:
-            bank = Bank(
-                name=normalized_name or normalized_short,
-                short_name=normalized_short or None,
-                swift_code=payload.bank_swift_code.strip() if payload.bank_swift_code else None,
-                country_code=payload.bank_country_code.strip().upper() if payload.bank_country_code else None,
-                address_line1=payload.bank_address_line1.strip() if payload.bank_address_line1 else None,
-                address_line2=payload.bank_address_line2.strip() if payload.bank_address_line2 else None,
-                city=payload.bank_city.strip() if payload.bank_city else None,
-                postal_code=payload.bank_postal_code.strip() if payload.bank_postal_code else None,
-                website=payload.bank_website.strip() if payload.bank_website else None,
-            )
-            db.add(bank)
-            await db.flush()
+        .where(CompanyBankAccount.id == bank_account_id)
+    )
+    result = await db.execute(stmt)
+    account = result.scalar_one_or_none()
+    if account is None or account.bank is None:
+        return None
+
+    company = account.company
+    bank = account.bank
+    return BankAccountDetailResponse(
+        id=account.id,
+        company_id=company.id if company is not None else None,
+        company_label=format_company_display_name(company) if company is not None else None,
+        bank_id=bank.id,
+        bank_label=format_bank_display_name(bank),
+        bank_name=bank.name,
+        bank_short_name=bank.short_name,
+        bank_swift_code=bank.swift_code,
+        bank_country_code=bank.country_code,
+        bank_address_line1=bank.address_line1,
+        bank_address_line2=bank.address_line2,
+        bank_city=bank.city,
+        bank_postal_code=bank.postal_code,
+        bank_website=bank.website,
+        currency_code=account.currency_code,
+        account_name=account.account_name,
+        iban=account.iban,
+        account_number=account.account_number,
+        bic=account.bic,
+        bank_branch=account.bank_branch,
+        is_primary=account.is_primary,
+        is_active=account.is_active,
+        opened_at=account.opened_at,
+        closed_at=account.closed_at,
+    )
+
+
+async def create_bank_account(db: AsyncSession, payload: BankAccountCreateRequest) -> CompanyBankAccount:
+    company = await resolve_company_for_bank_account(db, payload.company_id)
+    currency = await db.get(Currency, payload.currency_code.strip().upper())
+    if currency is None:
+        raise ValueError("Currency not found")
+
+    bank = await resolve_bank_for_bank_account(db, payload)
 
     account = CompanyBankAccount(
-        company_id=company.id,
+        company_id=company.id if company is not None else None,
         bank_id=bank.id,
         currency_code=currency.code,
         account_name=payload.account_name.strip() if payload.account_name else None,
@@ -561,6 +679,38 @@ async def create_bank_account(db: AsyncSession, payload: BankAccountCreateReques
         closed_at=payload.closed_at,
     )
     db.add(account)
+    await db.flush()
+    return account
+
+
+async def update_bank_account(
+    db: AsyncSession,
+    bank_account_id: int,
+    payload: BankAccountCreateRequest,
+) -> CompanyBankAccount:
+    account = await db.get(CompanyBankAccount, bank_account_id)
+    if account is None:
+        raise ValueError("Bank account not found")
+
+    company = await resolve_company_for_bank_account(db, payload.company_id)
+    currency = await db.get(Currency, payload.currency_code.strip().upper())
+    if currency is None:
+        raise ValueError("Currency not found")
+
+    bank = await resolve_bank_for_bank_account(db, payload)
+
+    account.company_id = company.id if company is not None else None
+    account.bank_id = bank.id
+    account.currency_code = currency.code
+    account.account_name = payload.account_name.strip() if payload.account_name else None
+    account.iban = payload.iban.strip() if payload.iban else None
+    account.account_number = payload.account_number.strip() if payload.account_number else None
+    account.bic = payload.bic.strip() if payload.bic else None
+    account.bank_branch = payload.bank_branch.strip() if payload.bank_branch else None
+    account.is_primary = payload.is_primary
+    account.is_active = payload.is_active
+    account.opened_at = payload.opened_at
+    account.closed_at = payload.closed_at
     await db.flush()
     return account
 

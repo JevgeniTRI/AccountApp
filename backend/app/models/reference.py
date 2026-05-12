@@ -73,7 +73,7 @@ class Currency(Base):
 class CompanyBankAccount(BigIntPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "company_bank_accounts"
 
-    company_id: Mapped[int] = mapped_column(ForeignKey("companies.id"), nullable=False, index=True)
+    company_id: Mapped[int | None] = mapped_column(ForeignKey("companies.id"), index=True)
     bank_id: Mapped[int] = mapped_column(ForeignKey("banks.id"), nullable=False, index=True)
     currency_code: Mapped[str] = mapped_column(ForeignKey("currencies.code"), nullable=False)
     account_name: Mapped[str | None] = mapped_column(String(255))
@@ -86,7 +86,7 @@ class CompanyBankAccount(BigIntPrimaryKeyMixin, TimestampMixin, Base):
     opened_at: Mapped[date | None] = mapped_column(Date)
     closed_at: Mapped[date | None] = mapped_column(Date)
 
-    company: Mapped["Company"] = relationship(back_populates="bank_accounts")
+    company: Mapped["Company | None"] = relationship(back_populates="bank_accounts")
     bank: Mapped["Bank"] = relationship(back_populates="company_bank_accounts")
     currency: Mapped["Currency"] = relationship()
 

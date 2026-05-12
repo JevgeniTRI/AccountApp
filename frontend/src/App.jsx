@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import BankAccountCreatePage from './pages/Banks/BankAccountCreatePage'
+import BankCreatePage from './pages/Banks/BankCreatePage'
 import BanksPage from './pages/Banks/BanksPage'
 import ClientCreatePage from './pages/Clients/ClientCreatePage'
 import ClientsPage from './pages/Clients/ClientsPage'
@@ -36,7 +37,9 @@ function App() {
           <Route path="/companies/new" element={<CompanyCreatePage />} />
           <Route path="/companies/:companyId/edit" element={<CompanyCreatePage />} />
           <Route path="/banks" element={<BanksPage />} />
+          <Route path="/banks/new-bank" element={<BankCreatePage />} />
           <Route path="/banks/new" element={<BankAccountCreatePage />} />
+          <Route path="/banks/:bankAccountId/edit" element={<BankAccountCreatePage />} />
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/clients/new" element={<ClientCreatePage />} />
           <Route path="/clients/:clientId/edit" element={<ClientCreatePage />} />
