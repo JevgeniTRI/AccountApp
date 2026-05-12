@@ -1,5 +1,5 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, Download, Eye, Filter, Paperclip, Plus, RefreshCw, Search, SlidersHorizontal } from 'lucide-react'
+import { ArrowLeft, Download, Eye, Filter, Paperclip, Pencil, Plus, RefreshCw, Search, SlidersHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import LookupField from '../../components/LookupField/LookupField'
 import { buildPaymentAttachmentUrl, fetchPayments } from '../../lib/api'
@@ -21,13 +21,14 @@ function EmptyState({ search }) {
   )
 }
 
-function PaymentsTable({ rows }) {
+function PaymentsTable({ rows, onEdit }) {
   return (
     <table className="payments-table">
       <thead>
         <tr>
           <th>Дата</th>
           <th>Компания</th>
+          <th>Связанная компания</th>
           <th>Банк</th>
           <th>Контрагент</th>
           <th>Сумма</th>
@@ -37,6 +38,7 @@ function PaymentsTable({ rows }) {
           <th>Клиент</th>
           <th>Комментарий</th>
           <th>Статус</th>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -53,6 +55,7 @@ function PaymentsTable({ rows }) {
                 {payment.company?.name || '-'}
                 <span className="payments-table__secondary">ref {payment.payment_reference || '-'}</span>
               </td>
+              <td className="payments-table__party">{payment.related_company?.name || '-'}</td>
               <td className="payments-table__bank">{payment.bank?.name || '-'}</td>
               <td className="payments-table__party">{payment.counterparty?.name || '-'}</td>
               <td className={`payments-table__amount ${amountClass}`}>
@@ -86,6 +89,16 @@ function PaymentsTable({ rows }) {
               </td>
               <td>
                 <span className="payments-table__pill">{payment.status.replaceAll('_', ' ')}</span>
+              </td>
+              <td className="payments-table__actions">
+                <button
+                  type="button"
+                  className="payments-table__icon-button"
+                  onClick={() => onEdit(payment.id)}
+                  aria-label="Редактировать платёж"
+                >
+                  <Pencil size={14} />
+                </button>
               </td>
             </tr>
           )
@@ -361,7 +374,7 @@ export default function PaymentsPage() {
             ) : paymentsState.items.length === 0 ? (
               <EmptyState search={Boolean(filters.search)} />
             ) : (
-              <PaymentsTable rows={paymentsState.items} />
+              <PaymentsTable rows={paymentsState.items} onEdit={(paymentId) => navigate(`/payments/${paymentId}/edit`)} />
             )}
           </div>
 

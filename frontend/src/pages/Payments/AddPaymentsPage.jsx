@@ -13,9 +13,9 @@ import {
   Upload,
   X,
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import LookupField from '../../components/LookupField/LookupField'
-import { createPaymentsBatch } from '../../lib/api'
+import { buildPaymentAttachmentUrl, createPaymentsBatch, fetchPayment, updatePayment } from '../../lib/api'
 import {
   findLookupOption,
   formatAmount,
@@ -27,10 +27,30 @@ import {
 import './AddPaymentsPage.css'
 
 const DRAFT_STORAGE_KEY = 'acc-app:add-payments-draft'
+const PARTY_TYPE_OPTIONS = [
+  { value: 'counterparty', label: 'Контрагент' },
+  { value: 'company', label: 'Компания' },
+  { value: 'clientCounterparty', label: 'Клиент + контрагент' },
+]
+
+function inferPartyType(row) {
+  if (row.partyType && PARTY_TYPE_OPTIONS.some((option) => option.value === row.partyType)) {
+    return row.partyType
+  }
+  if (row.relatedCompanyText?.trim()) {
+    return 'company'
+  }
+  if (row.clientText?.trim()) {
+    return 'clientCounterparty'
+  }
+  return 'counterparty'
+}
 
 function createRow() {
   return {
     id: crypto.randomUUID(),
+    partyType: 'counterparty',
+    relatedCompanyText: '',
     counterpartyName: '',
     amount: '',
     tax: '',
@@ -38,6 +58,15 @@ function createRow() {
     clientText: '',
     comment: '',
     expanded: false,
+    attachments: [],
+  }
+}
+
+function hydrateRow(row) {
+  return {
+    ...createRow(),
+    ...row,
+    partyType: inferPartyType(row),
     attachments: [],
   }
 }
@@ -55,6 +84,24 @@ function buildRowNotes(row) {
   return row.comment.trim() || null
 }
 
+function rowHasData(row) {
+  const partyValues =
+    row.partyType === 'company'
+      ? [row.relatedCompanyText]
+      : row.partyType === 'clientCounterparty'
+        ? [row.clientText, row.counterpartyName]
+        : [row.counterpartyName]
+
+  return (
+    partyValues.some((value) => value?.trim()) ||
+    row.comment.trim() ||
+    row.amount ||
+    row.tax ||
+    row.incomeExpense ||
+    row.attachments.length > 0
+  )
+}
+
 function buildDraftState(state) {
   return {
     ...state,
@@ -65,53 +112,123 @@ function buildDraftState(state) {
   }
 }
 
+function createExistingAttachment(attachment) {
+  return {
+    id: `existing-${attachment.id}`,
+    existingAttachmentId: attachment.id,
+    fileName: attachment.file_name,
+    contentType: attachment.content_type,
+    fileSize: attachment.file_size,
+    base64: '',
+  }
+}
+
+function createRowFromPayment(payment) {
+  const signedAmount =
+    payment.payment_direction === 'outgoing' ? -Math.abs(toNumber(payment.amount_original)) : Math.abs(toNumber(payment.amount_original))
+
+  return {
+    ...createRow(),
+    partyType: payment.related_company?.id
+      ? 'company'
+      : payment.client?.id
+        ? 'clientCounterparty'
+        : 'counterparty',
+    relatedCompanyText: payment.related_company?.name || '',
+    counterpartyName: payment.counterparty?.name || '',
+    amount: String(signedAmount),
+    tax: payment.vat_amount_eur ? String(toNumber(payment.vat_amount_eur)) : '',
+    incomeExpense: payment.company_commission_amount_eur ? String(toNumber(payment.company_commission_amount_eur)) : '',
+    clientText: payment.client?.name || '',
+    comment: payment.notes || '',
+    attachments: (payment.attachments || []).map(createExistingAttachment),
+  }
+}
+
+function createFormStateFromPayment(payment) {
+  return {
+    bookingDate: payment.booking_date || toDateInputValue(new Date()),
+    bankAccount: {
+      value: payment.company_bank_account.id,
+      label: payment.company_bank_account.label,
+      companyId: payment.company_bank_account.company_id,
+      companyName: payment.company_bank_account.company_name,
+      bankId: payment.company_bank_account.bank_id,
+      bankName: payment.company_bank_account.bank_name,
+      currencyCode: payment.company_bank_account.currency_code,
+    },
+    bankAccountText: payment.company_bank_account.label,
+    rows: [createRowFromPayment(payment)],
+  }
+}
+
+function cloneFormState(state) {
+  return {
+    ...state,
+    bankAccount: state.bankAccount ? { ...state.bankAccount } : null,
+    rows: state.rows.map((row) => ({
+      ...row,
+      attachments: row.attachments.map((attachment) => ({ ...attachment })),
+    })),
+  }
+}
+
 export default function AddPaymentsPage() {
   const navigate = useNavigate()
+  const { paymentId } = useParams()
+  const isEditMode = Boolean(paymentId)
   const fileInputRef = useRef(null)
   const [optionsState, setOptionsState] = useState({
     clients: [],
+    companies: [],
     isLoading: true,
     error: '',
   })
   const [formState, setFormState] = useState(() => createInitialState())
   const [message, setMessage] = useState({ type: '', text: '' })
   const [isSaving, setIsSaving] = useState(false)
+  const [isLoadingPayment, setIsLoadingPayment] = useState(isEditMode)
+  const [initialEditState, setInitialEditState] = useState(null)
 
   useEffect(() => {
     let cancelled = false
 
     async function loadReferenceData() {
       try {
-        const clients = await loadLookup('clients', '')
+        const [clients, companies, payment] = await Promise.all([
+          loadLookup('clients', ''),
+          loadLookup('companies', ''),
+          isEditMode ? fetchPayment(paymentId) : Promise.resolve(null),
+        ])
 
         if (cancelled) {
           return
         }
 
-        const draftRaw = window.localStorage.getItem(DRAFT_STORAGE_KEY)
-        if (draftRaw) {
-          try {
-            const draft = JSON.parse(draftRaw)
-            setFormState({
-              bookingDate: draft.bookingDate || toDateInputValue(new Date()),
-              bankAccount: draft.bankAccount || null,
-              bankAccountText: draft.bankAccountText || draft.bankAccount?.label || '',
-              rows:
-                draft.rows?.length
-                  ? draft.rows.map((row) => ({
-                      ...createRow(),
-                      ...row,
-                      attachments: [],
-                    }))
-                  : [createRow()],
-            })
-          } catch {
-            // Ignore malformed drafts and keep the default form state.
+        if (payment) {
+          const nextState = createFormStateFromPayment(payment)
+          setFormState(nextState)
+          setInitialEditState(cloneFormState(nextState))
+        } else {
+          const draftRaw = window.localStorage.getItem(DRAFT_STORAGE_KEY)
+          if (draftRaw) {
+            try {
+              const draft = JSON.parse(draftRaw)
+              setFormState({
+                bookingDate: draft.bookingDate || toDateInputValue(new Date()),
+                bankAccount: draft.bankAccount || null,
+                bankAccountText: draft.bankAccountText || draft.bankAccount?.label || '',
+                rows: draft.rows?.length ? draft.rows.map(hydrateRow) : [createRow()],
+              })
+            } catch {
+              // Ignore malformed drafts and keep the default form state.
+            }
           }
         }
 
         setOptionsState({
           clients,
+          companies,
           isLoading: false,
           error: '',
         })
@@ -119,9 +236,15 @@ export default function AddPaymentsPage() {
         if (!cancelled) {
           setOptionsState({
             clients: [],
+            companies: [],
             isLoading: false,
             error: 'Не удалось загрузить справочники',
           })
+          setMessage({ type: 'error', text: isEditMode ? 'Не удалось загрузить платёж' : '' })
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingPayment(false)
         }
       }
     }
@@ -131,7 +254,7 @@ export default function AddPaymentsPage() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [isEditMode, paymentId])
 
   const totals = useMemo(() => {
     const incoming = formState.rows.reduce((total, row) => {
@@ -203,7 +326,7 @@ export default function AddPaymentsPage() {
   }
 
   function handleReset() {
-    setFormState(createInitialState())
+    setFormState(isEditMode && initialEditState ? cloneFormState(initialEditState) : createInitialState())
     setMessage({ type: '', text: '' })
   }
 
@@ -228,19 +351,32 @@ export default function AddPaymentsPage() {
         bookingDate: draft.bookingDate || toDateInputValue(new Date()),
         bankAccount: draft.bankAccount || null,
         bankAccountText: draft.bankAccountText || draft.bankAccount?.label || '',
-        rows:
-          draft.rows?.length
-            ? draft.rows.map((row) => ({
-                ...createRow(),
-                ...row,
-                attachments: [],
-              }))
-            : [createRow()],
+        rows: draft.rows?.length ? draft.rows.map(hydrateRow) : [createRow()],
       })
       setMessage({ type: 'success', text: 'Черновик загружен' })
     } catch {
       setMessage({ type: 'error', text: 'Не удалось прочитать черновик' })
     }
+  }
+
+  async function resolveLookupOption(type, textValue, seedOptions, errorMessage) {
+    const normalizedText = textValue.trim()
+    if (!normalizedText) {
+      return null
+    }
+
+    const seedMatch = findLookupOption(type, normalizedText, seedOptions)
+    if (seedMatch) {
+      return seedMatch
+    }
+
+    const liveOptions = await loadLookup(type, normalizedText)
+    const liveMatch = findLookupOption(type, normalizedText, liveOptions)
+    if (!liveMatch) {
+      throw new Error(errorMessage)
+    }
+
+    return liveMatch
   }
 
   async function handleSave() {
@@ -256,12 +392,13 @@ export default function AddPaymentsPage() {
         'Нужно выбрать существующий банковский счёт компании',
       )
 
-      const rowsToSave = formState.rows.filter(
-        (row) => row.counterpartyName.trim() || row.clientText.trim() || row.comment.trim() || row.amount,
-      )
+      const rowsToSave = formState.rows.filter(rowHasData)
 
       if (rowsToSave.length === 0) {
         throw new Error('Добавьте хотя бы одну строку платежа')
+      }
+      if (isEditMode && rowsToSave.length !== 1) {
+        throw new Error('Редактирование работает только для одного сохранённого платежа')
       }
 
       const items = []
@@ -271,15 +408,51 @@ export default function AddPaymentsPage() {
           throw new Error('Каждая строка должна содержать сумму')
         }
 
-        const matchedClient = findLookupOption('clients', row.clientText, optionsState.clients)
-        if (row.clientText.trim() && !matchedClient) {
-          throw new Error(`Клиент "${row.clientText.trim()}" не найден в справочнике`)
-        }
-        const client = matchedClient || null
+        const relatedCompany =
+          row.partyType === 'company'
+            ? await resolveLookupOption(
+                'companies',
+                row.relatedCompanyText,
+                optionsState.companies,
+                `Компания "${row.relatedCompanyText.trim()}" не найдена в справочнике`,
+              )
+            : null
 
-        if (client && !row.counterpartyName.trim()) {
-          throw new Error('Для строк с клиентом нужно указать контрагента')
+        const client =
+          row.partyType === 'clientCounterparty'
+            ? await resolveLookupOption(
+                'clients',
+                row.clientText,
+                optionsState.clients,
+                `Клиент "${row.clientText.trim()}" не найден в справочнике`,
+              )
+            : null
+
+        if (row.partyType === 'company') {
+          if (!relatedCompany) {
+            throw new Error('Для типа "Компания" нужно выбрать компанию из справочника')
+          }
+          if (relatedCompany.value === bankAccount.companyId) {
+            throw new Error('Компания в строке должна отличаться от компании выбранного счёта')
+          }
         }
+
+        if (row.partyType === 'counterparty' && !row.counterpartyName.trim()) {
+          throw new Error('Для типа "Контрагент" нужно указать контрагента')
+        }
+
+        if (row.partyType === 'clientCounterparty') {
+          if (!client) {
+            throw new Error('Для типа "Клиент + контрагент" нужно выбрать клиента')
+          }
+          if (!row.counterpartyName.trim()) {
+            throw new Error('Для типа "Клиент + контрагент" нужно указать контрагента')
+          }
+        }
+
+        const counterpartyName = row.partyType === 'company' ? null : row.counterpartyName.trim() || null
+        const paymentPurpose =
+          row.partyType === 'company' ? relatedCompany?.label || null : counterpartyName || null
 
         items.push({
           company_bank_account_id: bankAccount.value,
@@ -291,21 +464,31 @@ export default function AddPaymentsPage() {
           vat_amount_eur: Math.abs(toNumber(row.tax)),
           company_commission_amount_eur: toNumber(row.incomeExpense),
           payment_direction: amount >= 0 ? 'incoming' : 'outgoing',
+          related_company_id: relatedCompany?.value ?? null,
           client_id: client?.value ?? null,
-          counterparty_name: client ? row.counterpartyName.trim() : null,
-          payment_purpose: row.counterpartyName.trim() || null,
+          counterparty_name: counterpartyName,
+          payment_purpose: paymentPurpose,
           notes: buildRowNotes(row),
-          attachments: row.attachments.map((attachment) => ({
+          keep_attachment_ids: row.attachments
+            .filter((attachment) => Number.isInteger(attachment.existingAttachmentId))
+            .map((attachment) => attachment.existingAttachmentId),
+          attachments: row.attachments
+            .filter((attachment) => !attachment.existingAttachmentId)
+            .map((attachment) => ({
             file_name: attachment.fileName,
             content_type: attachment.contentType,
             file_content_base64: attachment.base64,
-          })),
+            })),
         })
       }
 
-      await createPaymentsBatch(items)
-      window.localStorage.removeItem(DRAFT_STORAGE_KEY)
-      setMessage({ type: 'success', text: 'Платежи сохранены' })
+      if (isEditMode) {
+        await updatePayment(paymentId, items[0])
+      } else {
+        await createPaymentsBatch(items)
+        window.localStorage.removeItem(DRAFT_STORAGE_KEY)
+      }
+      setMessage({ type: 'success', text: isEditMode ? 'Платёж обновлён' : 'Платежи сохранены' })
       window.setTimeout(() => navigate('/payments'), 600)
     } catch (error) {
       setMessage({
@@ -331,14 +514,7 @@ export default function AddPaymentsPage() {
           bookingDate: draft.bookingDate || toDateInputValue(new Date()),
           bankAccount: draft.bankAccount || null,
           bankAccountText: draft.bankAccountText || draft.bankAccount?.label || '',
-          rows:
-            draft.rows?.length
-              ? draft.rows.map((row) => ({
-                  ...createRow(),
-                  ...row,
-                  attachments: [],
-                }))
-              : [createRow()],
+          rows: draft.rows?.length ? draft.rows.map(hydrateRow) : [createRow()],
         })
         setMessage({ type: 'success', text: `Файл ${file.name} загружен` })
       } catch {
@@ -418,6 +594,11 @@ export default function AddPaymentsPage() {
   }
 
   function handleAttachmentPreview(attachment) {
+    if (attachment?.existingAttachmentId) {
+      window.open(buildPaymentAttachmentUrl(attachment.existingAttachmentId), '_blank', 'noopener,noreferrer')
+      return
+    }
+
     if (!attachment?.base64 || !attachment?.contentType) {
       setMessage({ type: 'error', text: 'Не удалось открыть вложение' })
       return
@@ -449,7 +630,7 @@ export default function AddPaymentsPage() {
             <button type="button" className="add-payments-back" onClick={() => navigate('/payments')}>
               <ArrowLeft size={18} />
             </button>
-            <h1>Добавление платежей</h1>
+            <h1>{isEditMode ? 'Редактирование платежа' : 'Добавление платежей'}</h1>
           </div>
 
           <div className="add-payments-toolbar">
@@ -498,29 +679,39 @@ export default function AddPaymentsPage() {
             </div>
 
             <div className="add-payments-actions">
-              <button type="button" className="add-payments-action" onClick={() => addRow()}>
-                <Plus size={16} />
-                Добавить
-              </button>
-              <button type="button" className="add-payments-action" onClick={handleLoadDraft}>
-                <Upload size={16} />
-                Загрузить
-              </button>
-              <button type="button" className="add-payments-action" onClick={() => fileInputRef.current?.click()}>
-                <Upload size={16} />
-                Импорт JSON
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/json"
-                hidden
-                onChange={handleFilePick}
-              />
+              {!isEditMode ? (
+                <>
+                  <button type="button" className="add-payments-action" onClick={() => addRow()}>
+                    <Plus size={16} />
+                    Добавить
+                  </button>
+                  <button type="button" className="add-payments-action" onClick={handleLoadDraft}>
+                    <Upload size={16} />
+                    Загрузить
+                  </button>
+                  <button type="button" className="add-payments-action" onClick={() => fileInputRef.current?.click()}>
+                    <Upload size={16} />
+                    Импорт JSON
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="application/json"
+                    hidden
+                    onChange={handleFilePick}
+                  />
+                </>
+              ) : null}
             </div>
 
             <datalist id="clients-options">
               {optionsState.clients.map((option) => (
+                <option key={option.value} value={option.label} />
+              ))}
+            </datalist>
+
+            <datalist id="companies-options">
+              {optionsState.companies.map((option) => (
                 <option key={option.value} value={option.label} />
               ))}
             </datalist>
@@ -531,6 +722,7 @@ export default function AddPaymentsPage() {
               {message.text}
             </div>
           ) : null}
+          {isEditMode && isLoadingPayment ? <div className="add-payments-message">Загрузка платежа...</div> : null}
           {optionsState.error ? <div className="add-payments-message is-error">{optionsState.error}</div> : null}
 
           <div className="add-payments-table-wrap">
@@ -538,6 +730,8 @@ export default function AddPaymentsPage() {
               <thead>
                 <tr>
                   <th />
+                  <th>Тип стороны</th>
+                  <th>Компания</th>
                   <th>Контрагент</th>
                   <th>Сумма</th>
                   <th>Налог</th>
@@ -560,23 +754,66 @@ export default function AddPaymentsPage() {
                         <td className="add-payments-table__move">
                           <GripVertical size={14} />
                         </td>
+                        <td className="add-payments-table__type">
+                          <select
+                            value={row.partyType}
+                            onChange={(event) => updateRow(row.id, { partyType: event.target.value })}
+                          >
+                            {PARTY_TYPE_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="add-payments-table__company">
+                          {row.partyType === 'company' ? (
+                            <div className="add-payments-table__party-inner">
+                              <button
+                                type="button"
+                                className="add-payments-expand"
+                                onClick={() => toggleExpanded(row.id)}
+                                aria-label={row.expanded ? 'Свернуть строку' : 'Развернуть строку'}
+                              >
+                                {row.expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                              </button>
+                              <input
+                                list="companies-options"
+                                type="text"
+                                value={row.relatedCompanyText}
+                                onChange={(event) => updateRow(row.id, { relatedCompanyText: event.target.value })}
+                                placeholder="Компания из справочника"
+                              />
+                            </div>
+                          ) : (
+                            <div className="add-payments-table__party-placeholder">
+                              <button
+                                type="button"
+                                className="add-payments-expand"
+                                onClick={() => toggleExpanded(row.id)}
+                                aria-label={row.expanded ? 'Свернуть строку' : 'Развернуть строку'}
+                              >
+                                {row.expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                              </button>
+                              <span>-</span>
+                            </div>
+                          )}
+                        </td>
                         <td className="add-payments-table__counterparty">
-                          <div className="add-payments-table__counterparty-inner">
-                            <button
-                              type="button"
-                              className="add-payments-expand"
-                              onClick={() => toggleExpanded(row.id)}
-                              aria-label={row.expanded ? 'Свернуть строку' : 'Развернуть строку'}
-                            >
-                              {row.expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                            </button>
-                            <input
-                              type="text"
-                              value={row.counterpartyName}
-                              onChange={(event) => updateRow(row.id, { counterpartyName: event.target.value })}
-                              placeholder="Название контрагента"
-                            />
-                          </div>
+                          {row.partyType === 'company' ? (
+                            <div className="add-payments-table__party-placeholder">
+                              <span>-</span>
+                            </div>
+                          ) : (
+                            <div className="add-payments-table__party-inner">
+                              <input
+                                type="text"
+                                value={row.counterpartyName}
+                                onChange={(event) => updateRow(row.id, { counterpartyName: event.target.value })}
+                                placeholder="Название контрагента"
+                              />
+                            </div>
+                          )}
                         </td>
                         <td>
                           <input
@@ -608,13 +845,19 @@ export default function AddPaymentsPage() {
                           />
                         </td>
                         <td>
-                          <input
-                            list="clients-options"
-                            type="text"
-                            value={row.clientText}
-                            onChange={(event) => updateRow(row.id, { clientText: event.target.value })}
-                            placeholder="-"
-                          />
+                          {row.partyType === 'clientCounterparty' ? (
+                            <input
+                              list="clients-options"
+                              type="text"
+                              value={row.clientText}
+                              onChange={(event) => updateRow(row.id, { clientText: event.target.value })}
+                              placeholder="Клиент из справочника"
+                            />
+                          ) : (
+                            <div className="add-payments-table__party-placeholder">
+                              <span>-</span>
+                            </div>
+                          )}
                         </td>
                         <td>
                           <div className="add-payments-table__comment-cell">
@@ -672,7 +915,7 @@ export default function AddPaymentsPage() {
                       {row.expanded ? (
                         <tr className="add-payments-breakdown-row">
                           <td />
-                          <td colSpan={7}>
+                          <td colSpan={9}>
                             <div className="add-payments-breakdown">
                               <div>
                                 <span>Сумма без налога:</span>
@@ -739,13 +982,15 @@ export default function AddPaymentsPage() {
             </button>
           </div>
           <div className="add-payments-footer__group">
-            <button type="button" className="add-payments-footer__button" onClick={handleSaveDraft}>
-              <Save size={16} />
-              Сохранить черновик
-            </button>
+            {!isEditMode ? (
+              <button type="button" className="add-payments-footer__button" onClick={handleSaveDraft}>
+                <Save size={16} />
+                Сохранить черновик
+              </button>
+            ) : null}
             <button type="button" className="add-payments-footer__button is-primary" onClick={handleSave} disabled={isSaving}>
               <Save size={16} />
-              {isSaving ? 'Сохраняю...' : 'Сохранить'}
+              {isSaving ? 'Сохраняю...' : isEditMode ? 'Сохранить изменения' : 'Сохранить'}
             </button>
           </div>
         </div>

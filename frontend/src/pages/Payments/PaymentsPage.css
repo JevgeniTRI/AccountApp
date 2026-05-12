@@ -242,6 +242,19 @@
   white-space: nowrap;
 }
 
+.payments-table__actions {
+  width: 52px;
+}
+
+.payments-table__icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: var(--muted-text);
+}
+
 .payments-table__amount.is-positive {
   color: var(--positive-text);
   font-weight: 700;

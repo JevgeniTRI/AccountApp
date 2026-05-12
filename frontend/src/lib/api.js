@@ -24,8 +24,18 @@ export async function fetchPayments(params) {
   return data
 }
 
+export async function fetchPayment(paymentId) {
+  const { data } = await api.get(`/payments/${paymentId}`)
+  return data
+}
+
 export async function createPayment(payload) {
   const { data } = await api.post('/payments', payload)
+  return data
+}
+
+export async function updatePayment(paymentId, payload) {
+  const { data } = await api.put(`/payments/${paymentId}`, payload)
   return data
 }
 

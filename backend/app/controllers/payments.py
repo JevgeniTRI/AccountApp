@@ -15,10 +15,18 @@ from app.schemas.payments import (
     PaymentAttachmentSummary,
     PaymentCreateRequest,
     PaymentCreateResponse,
+    PaymentDetailResponse,
     PaymentListResponse,
     PaymentRow,
 )
-from app.services.payments import PaymentValidationError, create_payment, create_payments_batch, list_payments
+from app.services.payments import (
+    PaymentValidationError,
+    create_payment,
+    create_payments_batch,
+    get_payment_detail,
+    list_payments,
+    update_payment,
+)
 
 
 router = APIRouter(prefix="/payments", tags=["payments"])
@@ -67,6 +75,7 @@ async def get_payments(
                 value_date=row["value_date"],
                 transaction_date=row["transaction_date"],
                 company={"id": row["company_id"], "name": row["company_name"]},
+                related_company={"id": row["related_company_id"], "name": row["related_company_name"]},
                 bank={"id": row["bank_id"], "name": row["bank_name"]},
                 counterparty={"id": row["counterparty_id"], "name": row["counterparty_name"]},
                 client={"id": row["client_id"], "name": row["client_name"]},
@@ -109,6 +118,43 @@ async def post_payment(payload: PaymentCreateRequest, db: AsyncSession = Depends
     except SQLAlchemyError as exc:
         await db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create payment") from exc
+
+    return PaymentCreateResponse(
+        id=payment.id,
+        payment_kind=payment.payment_kind,
+        payment_direction=payment.payment_direction,
+        company_bank_account_id=payment.company_bank_account_id,
+    )
+
+
+@router.get("/{payment_id}", response_model=PaymentDetailResponse)
+async def get_payment(payment_id: int, db: AsyncSession = Depends(get_db)) -> PaymentDetailResponse:
+    try:
+        payment = await get_payment_detail(db, payment_id)
+    except PaymentValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if payment is None:
+        raise HTTPException(status_code=404, detail="Payment not found")
+
+    return payment
+
+
+@router.put("/{payment_id}", response_model=PaymentCreateResponse)
+async def put_payment(
+    payment_id: int,
+    payload: PaymentCreateRequest,
+    db: AsyncSession = Depends(get_db),
+) -> PaymentCreateResponse:
+    try:
+        payment = await update_payment(db, payment_id, payload)
+        await db.commit()
+    except PaymentValidationError as exc:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except SQLAlchemyError as exc:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to update payment") from exc
 
     return PaymentCreateResponse(
         id=payment.id,

@@ -4,6 +4,7 @@ from decimal import Decimal
 from pydantic import BaseModel, Field
 
 from app.models.enums import PaymentDirection, PaymentKind, PaymentStatus
+from app.schemas.reference import BankAccountLookupItem
 
 
 class PaymentPartySummary(BaseModel):
@@ -29,6 +30,7 @@ class PaymentRow(BaseModel):
     value_date: date | None = None
     transaction_date: date | None = None
     company: PaymentPartySummary
+    related_company: PaymentPartySummary
     bank: PaymentBankSummary
     counterparty: PaymentPartySummary
     client: PaymentPartySummary
@@ -53,6 +55,29 @@ class PaymentListResponse(BaseModel):
     items: list[PaymentRow]
 
 
+class PaymentDetailResponse(BaseModel):
+    id: int
+    company_bank_account: BankAccountLookupItem
+    booking_date: date
+    value_date: date | None = None
+    transaction_date: date | None = None
+    amount_original: Decimal
+    amount_eur: Decimal
+    vat_amount_eur: Decimal | None = None
+    company_commission_amount_eur: Decimal | None = None
+    payment_direction: PaymentDirection
+    payment_kind: PaymentKind
+    status: PaymentStatus
+    related_company: PaymentPartySummary
+    counterparty: PaymentPartySummary
+    client: PaymentPartySummary
+    payment_reference: str | None = None
+    payment_purpose: str | None = None
+    notes: str | None = None
+    attachments: list[PaymentAttachmentSummary] = Field(default_factory=list)
+    created_at: datetime
+
+
 class PaymentCreateRequest(BaseModel):
     company_bank_account_id: int
     booking_date: date
@@ -63,6 +88,7 @@ class PaymentCreateRequest(BaseModel):
     vat_amount_eur: Decimal = Field(default=Decimal("0"), ge=0)
     company_commission_amount_eur: Decimal = Decimal("0")
     payment_direction: PaymentDirection
+    related_company_id: int | None = None
     client_id: int | None = None
     counterparty_id: int | None = None
     counterparty_name: str | None = Field(default=None, max_length=255)
@@ -71,6 +97,7 @@ class PaymentCreateRequest(BaseModel):
     notes: str | None = None
     exchange_rate_id: int | None = None
     exchange_rate_manual: Decimal | None = None
+    keep_attachment_ids: list[int] = Field(default_factory=list, max_length=20)
     attachments: list["PaymentAttachmentCreateRequest"] = Field(default_factory=list, max_length=20)
 
 

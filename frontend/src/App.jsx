@@ -33,6 +33,7 @@ function App() {
           <Route path="/" element={<PlaceholderPage title="Главная" />} />
           <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/payments/new" element={<AddPaymentsPage />} />
+          <Route path="/payments/:paymentId/edit" element={<AddPaymentsPage />} />
           <Route path="/companies" element={<CompaniesPage />} />
           <Route path="/companies/new" element={<CompanyCreatePage />} />
           <Route path="/companies/:companyId/edit" element={<CompanyCreatePage />} />

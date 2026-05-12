@@ -117,8 +117,8 @@ class Payment(BigIntPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "payments"
     __table_args__ = (
         CheckConstraint(
-            "(payment_kind = 'client_payment' AND client_id IS NOT NULL AND counterparty_id IS NOT NULL) "
-            "OR (payment_kind = 'expense' AND client_id IS NULL AND counterparty_id IS NULL)",
+            "(payment_kind = 'client_payment' AND client_id IS NOT NULL) "
+            "OR (payment_kind = 'expense' AND client_id IS NULL)",
             name="ck_payments_kind_party_consistency",
         ),
     )
@@ -133,8 +133,10 @@ class Payment(BigIntPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
         index=True,
     )
+    related_company_id: Mapped[int | None] = mapped_column(ForeignKey("companies.id"), index=True)
     client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id"), index=True)
     counterparty_id: Mapped[int | None] = mapped_column(ForeignKey("counterparties.id"), index=True)
+    counterparty_name: Mapped[str | None] = mapped_column(String(255))
     payment_kind: Mapped[PaymentKind] = mapped_column(
         Enum(PaymentKind, native_enum=False, length=32, values_callable=enum_values),
         nullable=False,

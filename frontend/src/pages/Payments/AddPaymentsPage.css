@@ -150,7 +150,7 @@
 
 .add-payments-table {
   width: 100%;
-  min-width: 1080px;
+  min-width: 1240px;
   border-collapse: collapse;
 }
 
@@ -173,7 +173,8 @@
   background: rgba(250, 251, 255, 0.8);
 }
 
-.add-payments-table td input {
+.add-payments-table td input,
+.add-payments-table td select {
   width: 100%;
   min-height: 38px;
   padding: 8px 10px;
@@ -183,7 +184,8 @@
   color: var(--text-main);
 }
 
-.add-payments-table td input:focus {
+.add-payments-table td input:focus,
+.add-payments-table td select:focus {
   border-color: var(--line-soft);
   background: #fff;
   outline: none;
@@ -199,11 +201,16 @@
   color: var(--muted-text);
 }
 
+.add-payments-table__type {
+  min-width: 180px;
+}
+
+.add-payments-table__company,
 .add-payments-table__counterparty {
   min-width: 220px;
 }
 
-.add-payments-table__counterparty-inner {
+.add-payments-table__party-inner {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -219,8 +226,16 @@
   color: var(--muted-text);
 }
 
-.add-payments-table__counterparty-inner input {
+.add-payments-table__party-inner input {
   min-width: 0;
+}
+
+.add-payments-table__party-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  color: var(--muted-text);
 }
 
 .add-payments-table td input.is-positive {
