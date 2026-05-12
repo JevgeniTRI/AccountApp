@@ -28,6 +28,22 @@ from app.schemas.reference import (
 )
 
 
+def format_company_display_name(company: Company) -> str:
+    legal_name = (company.legal_name or "").strip()
+    short_name = (company.short_name or "").strip()
+    if legal_name and short_name and legal_name.casefold() != short_name.casefold():
+        return f"{legal_name} ({short_name})"
+    return legal_name or short_name
+
+
+def format_bank_display_name(bank: Bank) -> str:
+    name = (bank.name or "").strip()
+    short_name = (bank.short_name or "").strip()
+    if name and short_name and name.casefold() != short_name.casefold():
+        return f"{name} ({short_name})"
+    return name or short_name
+
+
 async def search_companies(db: AsyncSession, query: str | None, limit: int) -> list[Company]:
     stmt = select(Company).order_by(Company.legal_name.asc()).limit(limit)
     if query:
@@ -383,9 +399,9 @@ async def list_bank_account_overview(
             BankAccountOverviewItem(
                 id=account.id,
                 company_id=company.id,
-                company_name=company.short_name or company.legal_name,
+                company_name=format_company_display_name(company),
                 bank_id=bank.id,
-                bank_label=bank.short_name or bank.name,
+                bank_label=format_bank_display_name(bank),
                 bank_full_name=bank.name,
                 iban=account.iban,
                 account_number=account.account_number,
@@ -450,14 +466,14 @@ async def search_company_bank_accounts(
             BankAccountLookupItem(
                 id=account.id,
                 label=(
-                    f"{company.short_name or company.legal_name} | "
-                    f"{bank.short_name or bank.name} | "
+                    f"{format_company_display_name(company)} | "
+                    f"{format_bank_display_name(bank)} | "
                     f"{account.currency_code} | {account_reference}"
                 ),
                 company_id=company.id,
-                company_name=company.short_name or company.legal_name,
+                company_name=format_company_display_name(company),
                 bank_id=bank.id,
-                bank_name=bank.short_name or bank.name,
+                bank_name=format_bank_display_name(bank),
                 currency_code=account.currency_code,
             )
         )

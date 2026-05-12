@@ -1,3 +1,5 @@
+from collections import Counter
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,6 +39,8 @@ from app.services.reference import (
     delete_client,
     delete_company,
     delete_counterparty,
+    format_bank_display_name,
+    format_company_display_name,
     get_client_detail,
     get_company_detail,
     get_counterparty_detail,
@@ -59,6 +63,16 @@ from app.services.reference import (
 router = APIRouter(tags=["references"])
 
 
+def build_lookup_items(records: list[object], label_getter) -> list[LookupItem]:
+    base_labels = [label_getter(record) for record in records]
+    duplicates = Counter(base_labels)
+    items: list[LookupItem] = []
+    for record, base_label in zip(records, base_labels, strict=False):
+        label = base_label if duplicates[base_label] == 1 else f"{base_label} [ID {record.id}]"
+        items.append(LookupItem(id=record.id, label=label))
+    return items
+
+
 @router.get("/companies", response_model=list[LookupItem])
 async def get_companies(
     query: str | None = None,
@@ -66,7 +80,7 @@ async def get_companies(
     db: AsyncSession = Depends(get_db),
 ) -> list[LookupItem]:
     companies = await search_companies(db, query=query, limit=limit)
-    return [LookupItem(id=item.id, label=item.short_name or item.legal_name) for item in companies]
+    return build_lookup_items(companies, format_company_display_name)
 
 
 @router.post("/companies", response_model=CompanyResponse, status_code=201)
@@ -139,7 +153,7 @@ async def get_banks(
     db: AsyncSession = Depends(get_db),
 ) -> list[LookupItem]:
     banks = await search_banks(db, query=query, limit=limit)
-    return [LookupItem(id=item.id, label=item.short_name or item.name) for item in banks]
+    return build_lookup_items(banks, format_bank_display_name)
 
 
 @router.post("/banks", response_model=BankResponse, status_code=201)

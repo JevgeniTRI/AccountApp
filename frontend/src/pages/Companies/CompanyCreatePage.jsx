@@ -22,7 +22,7 @@ function createBankAccount() {
     recordId: null,
     id: crypto.randomUUID(),
     bankText: '',
-    currencyText: 'EUR',
+    currencyText: '',
     accountName: '',
     iban: '',
     accountNumber: '',
@@ -127,7 +127,7 @@ export default function CompanyCreatePage() {
                     id: crypto.randomUUID(),
                     recordId: account.id,
                     bankText: account.bank_label || '',
-                    currencyText: account.currency_code || 'EUR',
+                    currencyText: account.currency_code || '',
                     accountName: account.account_name || '',
                     iban: account.iban || '',
                     accountNumber: account.account_number || '',
@@ -270,7 +270,7 @@ export default function CompanyCreatePage() {
         const currency = requireLookupValue(
           'currencies',
           null,
-          account.currencyText || 'EUR',
+          account.currencyText || '',
           lookupState.currencies,
           `Валюта "${(account.currencyText || 'EUR').trim()}" не найдена в справочнике`,
         )

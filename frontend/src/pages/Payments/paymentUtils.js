@@ -98,16 +98,31 @@ export function findLookupOption(type, textValue, options) {
     return null
   }
 
-  return (
-    options.find((option) => {
-      if (type === 'currencies') {
-        return (
-          option.rawLabel?.toLowerCase() === normalized ||
-          option.label.toLowerCase() === normalized
-        )
-      }
+  const exactMatch = options.find((option) => {
+    if (type === 'currencies') {
+      return option.rawLabel?.toLowerCase() === normalized || option.label.toLowerCase() === normalized
+    }
 
-      return option.label.toLowerCase() === normalized
-    }) || null
-  )
+    return option.label.toLowerCase() === normalized
+  })
+
+  if (exactMatch) {
+    return exactMatch
+  }
+
+  if (type === 'currencies') {
+    return null
+  }
+
+  const startsWithMatches = options.filter((option) => option.label.toLowerCase().startsWith(normalized))
+  if (startsWithMatches.length === 1) {
+    return startsWithMatches[0]
+  }
+
+  const containsMatches = options.filter((option) => option.label.toLowerCase().includes(normalized))
+  if (containsMatches.length === 1) {
+    return containsMatches[0]
+  }
+
+  return null
 }

@@ -18,7 +18,7 @@ function createInitialState() {
     bankCity: '',
     bankPostalCode: '',
     bankWebsite: '',
-    currencyText: 'EUR',
+    currencyText: '',
     accountName: '',
     iban: '',
     accountNumber: '',
@@ -104,7 +104,7 @@ export default function BankAccountCreatePage() {
       const currency = requireLookupValue(
         'currencies',
         null,
-        formState.currencyText || 'EUR',
+        formState.currencyText || '',
         lookupState.currencies,
         'Нужно выбрать существующую валюту',
       )
