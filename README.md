@@ -2,21 +2,71 @@
 
 Backend-first foundation for an accounting system built with `FastAPI`, `SQLAlchemy`, and `SQLite`, with a planned path to `MySQL`.
 
-## Quick Start
+## Requirements
 
-How to run the project locally:
+- `Python 3.12+`
+- `Node.js` with `npm`
+- `PowerShell` for the commands below
 
-1. Start the backend in the first terminal:
+## Local Run
+
+The project is split into:
+
+- `backend/` - FastAPI API, business logic, SQLAlchemy models, and DB setup
+- `frontend/` - React + Vite client
+- `docs/` - architecture and domain notes
+
+### 1. Backend setup
+
+Open the first terminal in the repository root and run:
 
 ```powershell
-python -m venv .\backend\.venv
-.\backend\.venv\Scripts\Activate.ps1
 cd .\backend
+python -m venv .\.venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 python -m pip install -e .
-python -m uvicorn app.main:app --reload
 ```
 
-2. Start the frontend in the second terminal:
+### 2. Database setup (`SQLite` by default)
+
+The backend reads settings from `backend/.env`. By default it uses:
+
+```env
+DATABASE_URL=sqlite:///./accounting.db
+```
+
+That path resolves to `backend/accounting.db`.
+
+Create or update the schema before starting the API:
+
+```powershell
+python -m app.db.init_db
+```
+
+Notes:
+
+- `backend/.env` is already present with defaults for local development.
+- `backend/accounting.db` already exists in this repository. If you want an isolated local database, point `DATABASE_URL` to another SQLite file, for example `sqlite:///./accounting.local.db`, and then run `python -m app.db.init_db`.
+- `Alembic` is configured, but `backend/alembic/versions/` does not contain revisions yet. For a fresh local setup, use `python -m app.db.init_db`.
+
+### 3. Start the backend
+
+In the same terminal:
+
+```powershell
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Useful URLs:
+
+- API root: `http://127.0.0.1:8000`
+- Healthcheck: `http://127.0.0.1:8000/health`
+- Swagger UI: `http://127.0.0.1:8000/docs`
+
+### 4. Start the frontend
+
+Open a second terminal in the repository root and run:
 
 ```powershell
 cd .\frontend
@@ -24,27 +74,24 @@ npm install
 npm run dev
 ```
 
-3. Open the app in the browser:
+Open the app at `http://127.0.0.1:5173`.
 
-- Frontend app: `http://127.0.0.1:5173`
-- Backend API: `http://127.0.0.1:8000`
+The frontend uses `http://127.0.0.1:8000` as the default API base URL. If the backend is running elsewhere, create `frontend/.env.local` with:
 
-## Structure
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000
+```
 
-- `backend/` - API, domain logic, and database layer.
-- `frontend/` - React + Vite web client.
-- `docs/` - architecture and domain notes.
+## Backend Layout
 
-## Backend layout
+- `app/controllers` - HTTP entry points and route composition
+- `app/models` - SQLAlchemy ORM models and domain enums
+- `app/schemas` - Pydantic request/response schemas
+- `app/services` - business workflows and orchestration
+- `app/db` - database base class and session setup
+- `app/core` - settings and shared infrastructure helpers
 
-- `app/controllers` - HTTP entry points and route composition.
-- `app/models` - SQLAlchemy ORM models and domain enums.
-- `app/schemas` - Pydantic request/response schemas.
-- `app/services` - business workflows and orchestration.
-- `app/db` - database base class and session setup.
-- `app/core` - settings and shared infrastructure helpers.
-
-## Current focus
+## Current Focus
 
 - Company, client, counterparty, and banking reference models
 - Normalized payments and settlement snapshots
