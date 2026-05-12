@@ -1,4 +1,4 @@
-backend/accounting.db
+backend/*.db
 backend/*.log
 backend/.env
 backend/.venv/

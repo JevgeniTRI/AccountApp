@@ -41,14 +41,14 @@ That path resolves to `backend/accounting.db`.
 Create or update the schema before starting the API:
 
 ```powershell
-python -m app.db.init_db
+alembic upgrade head
 ```
 
 Notes:
 
 - `backend/.env` is already present with defaults for local development.
-- `backend/accounting.db` already exists in this repository. If you want an isolated local database, point `DATABASE_URL` to another SQLite file, for example `sqlite:///./accounting.local.db`, and then run `python -m app.db.init_db`.
-- `Alembic` is configured, but `backend/alembic/versions/` does not contain revisions yet. For a fresh local setup, use `python -m app.db.init_db`.
+- `backend/accounting.db` is a local development database. If you want an isolated local database, point `DATABASE_URL` to another SQLite file, for example `sqlite:///./accounting.local.db`, and then run `alembic upgrade head`.
+- If you already have an existing local database that was created before Alembic revisions were added, use `alembic stamp head` once to mark the existing schema as current. Use `alembic upgrade head` for new databases and future schema changes.
 
 ### 3. Start the backend
 
