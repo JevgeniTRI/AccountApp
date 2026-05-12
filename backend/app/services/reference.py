@@ -46,6 +46,11 @@ def format_bank_display_name(bank: Bank) -> str:
     return name or short_name
 
 
+def normalize_bank_account_currency(value: str | None) -> str | None:
+    normalized = (value or "").strip().upper()
+    return normalized or None
+
+
 async def search_companies(db: AsyncSession, query: str | None, limit: int) -> list[Company]:
     stmt = select(Company).order_by(Company.legal_name.asc()).limit(limit)
     if query:
@@ -109,14 +114,10 @@ async def add_company_bank_account(
     if bank is None:
         raise ValueError("Bank not found")
 
-    currency = await db.get(Currency, payload.currency_code.strip().upper())
-    if currency is None:
-        raise ValueError("Currency not found")
-
     account = CompanyBankAccount(
         company_id=company_id,
         bank_id=bank.id,
-        currency_code=currency.code,
+        currency_code=normalize_bank_account_currency(payload.currency_code),
         account_name=payload.account_name.strip() if payload.account_name else None,
         iban=payload.iban.strip() if payload.iban else None,
         account_number=payload.account_number.strip() if payload.account_number else None,
@@ -308,10 +309,6 @@ async def update_company(db: AsyncSession, company_id: int, payload: CompanyCrea
         existing_accounts = {account.id: account for account in company.bank_accounts}
         seen_account_ids: set[int] = set()
         for account_payload in payload.bank_accounts:
-            currency = await db.get(Currency, account_payload.currency_code.strip().upper())
-            if currency is None:
-                raise ValueError("Currency not found")
-
             bank = await db.get(Bank, account_payload.bank_id)
             if bank is None:
                 raise ValueError("Bank not found")
@@ -319,7 +316,7 @@ async def update_company(db: AsyncSession, company_id: int, payload: CompanyCrea
             if account_payload.id is not None and account_payload.id in existing_accounts:
                 account = existing_accounts[account_payload.id]
                 account.bank_id = bank.id
-                account.currency_code = currency.code
+                account.currency_code = normalize_bank_account_currency(account_payload.currency_code)
                 account.account_name = account_payload.account_name.strip() if account_payload.account_name else None
                 account.iban = account_payload.iban.strip() if account_payload.iban else None
                 account.account_number = account_payload.account_number.strip() if account_payload.account_number else None
@@ -468,13 +465,14 @@ async def search_company_bank_accounts(
             continue
 
         account_reference = account.iban or account.account_number or f"Account #{account.id}"
+        currency_label = account.currency_code or "-"
         items.append(
             BankAccountLookupItem(
                 id=account.id,
                 label=(
                     f"{format_company_display_name(company)} | "
                     f"{format_bank_display_name(bank)} | "
-                    f"{account.currency_code} | {account_reference}"
+                    f"{currency_label} | {account_reference}"
                 ),
                 company_id=company.id,
                 company_name=format_company_display_name(company),
@@ -658,16 +656,12 @@ async def get_bank_account_detail(db: AsyncSession, bank_account_id: int) -> Ban
 
 async def create_bank_account(db: AsyncSession, payload: BankAccountCreateRequest) -> CompanyBankAccount:
     company = await resolve_company_for_bank_account(db, payload.company_id)
-    currency = await db.get(Currency, payload.currency_code.strip().upper())
-    if currency is None:
-        raise ValueError("Currency not found")
-
     bank = await resolve_bank_for_bank_account(db, payload)
 
     account = CompanyBankAccount(
         company_id=company.id if company is not None else None,
         bank_id=bank.id,
-        currency_code=currency.code,
+        currency_code=normalize_bank_account_currency(payload.currency_code),
         account_name=payload.account_name.strip() if payload.account_name else None,
         iban=payload.iban.strip() if payload.iban else None,
         account_number=payload.account_number.strip() if payload.account_number else None,
@@ -693,15 +687,11 @@ async def update_bank_account(
         raise ValueError("Bank account not found")
 
     company = await resolve_company_for_bank_account(db, payload.company_id)
-    currency = await db.get(Currency, payload.currency_code.strip().upper())
-    if currency is None:
-        raise ValueError("Currency not found")
-
     bank = await resolve_bank_for_bank_account(db, payload)
 
     account.company_id = company.id if company is not None else None
     account.bank_id = bank.id
-    account.currency_code = currency.code
+    account.currency_code = normalize_bank_account_currency(payload.currency_code)
     account.account_name = payload.account_name.strip() if payload.account_name else None
     account.iban = payload.iban.strip() if payload.iban else None
     account.account_number = payload.account_number.strip() if payload.account_number else None

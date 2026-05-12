@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.accounting import PaymentFinancialBreakdown
 from app.models.banking import Payment, PaymentAttachment
 from app.models.enums import PaymentDirection, PaymentKind, PaymentStatus
-from app.models.reference import Bank, Client, Company, CompanyBankAccount, CompanyClient, Counterparty, Currency
+from app.models.reference import Bank, Client, Company, CompanyBankAccount, CompanyClient, Counterparty
 from app.schemas.payments import PaymentCreateRequest
 
 MAX_PAYMENT_ATTACHMENT_BYTES = 10 * 1024 * 1024
@@ -160,9 +160,9 @@ async def create_payment(db: AsyncSession, payload: PaymentCreateRequest) -> Pay
     if bank is None:
         raise PaymentValidationError("Bank not found for bank account")
 
-    currency = await db.get(Currency, company_bank_account.currency_code)
-    if currency is None:
-        raise PaymentValidationError("Currency not found for bank account")
+    currency_code = (company_bank_account.currency_code or "").strip().upper()
+    if not currency_code:
+        raise PaymentValidationError("Currency is not set for bank account")
 
     client = None
     counterparty = None
@@ -192,7 +192,7 @@ async def create_payment(db: AsyncSession, payload: PaymentCreateRequest) -> Pay
 
     amount_eur = payload.amount_eur
     if amount_eur is None:
-        if currency.code == "EUR":
+        if currency_code == "EUR":
             amount_eur = payload.amount_original
         else:
             raise PaymentValidationError("amount_eur is required for non-EUR payments")
@@ -210,7 +210,7 @@ async def create_payment(db: AsyncSession, payload: PaymentCreateRequest) -> Pay
         value_date=payload.value_date,
         transaction_date=payload.transaction_date,
         amount_original=payload.amount_original,
-        currency_code=currency.code,
+        currency_code=currency_code,
         exchange_rate_id=payload.exchange_rate_id,
         exchange_rate_manual=payload.exchange_rate_manual,
         amount_eur=amount_eur,
@@ -222,7 +222,7 @@ async def create_payment(db: AsyncSession, payload: PaymentCreateRequest) -> Pay
     )
     db.add(payment)
     await db.flush()
-    await upsert_payment_financial_breakdown(db, payment=payment, payload=payload, currency_code=currency.code)
+    await upsert_payment_financial_breakdown(db, payment=payment, payload=payload, currency_code=currency_code)
     await replace_payment_attachments(db, payment=payment, payload=payload)
     return payment
 

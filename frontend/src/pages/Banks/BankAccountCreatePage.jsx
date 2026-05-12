@@ -18,7 +18,7 @@ function createInitialState() {
     bankCity: '',
     bankPostalCode: '',
     bankWebsite: '',
-    currencyText: 'EUR',
+    currencyText: '',
     accountName: '',
     iban: '',
     accountNumber: '',
@@ -40,7 +40,6 @@ export default function BankAccountCreatePage() {
   const [lookupState, setLookupState] = useState({
     companies: [],
     banks: [],
-    currencies: [],
     isLoading: true,
   })
   const [submitState, setSubmitState] = useState({
@@ -54,10 +53,9 @@ export default function BankAccountCreatePage() {
 
     async function loadData() {
       try {
-        const [companies, banks, currencies] = await Promise.all([
+        const [companies, banks] = await Promise.all([
           loadLookup('companies', ''),
           loadLookup('banks', ''),
-          loadLookup('currencies', ''),
         ])
 
         let account = null
@@ -69,7 +67,6 @@ export default function BankAccountCreatePage() {
           setLookupState({
             companies,
             banks,
-            currencies,
             isLoading: false,
           })
 
@@ -89,7 +86,7 @@ export default function BankAccountCreatePage() {
               bankCity: account.bank_city || '',
               bankPostalCode: account.bank_postal_code || '',
               bankWebsite: account.bank_website || '',
-              currencyText: account.currency_code || 'EUR',
+              currencyText: account.currency_code || '',
               accountName: account.account_name || '',
               iban: account.iban || '',
               accountNumber: account.account_number || '',
@@ -124,7 +121,6 @@ export default function BankAccountCreatePage() {
           setLookupState({
             companies: [],
             banks: [],
-            currencies: [],
             isLoading: false,
           })
         }
@@ -157,14 +153,6 @@ export default function BankAccountCreatePage() {
           )
         : null
 
-      const currency = requireLookupValue(
-        'currencies',
-        null,
-        formState.currencyText || 'EUR',
-        lookupState.currencies,
-        'Нужно выбрать существующую валюту',
-      )
-
       const matchedBank = findLookupOption('banks', formState.bankLookupText, lookupState.banks)
 
       const payload = {
@@ -179,7 +167,7 @@ export default function BankAccountCreatePage() {
         bank_city: matchedBank ? null : formState.bankCity.trim() || null,
         bank_postal_code: matchedBank ? null : formState.bankPostalCode.trim() || null,
         bank_website: matchedBank ? null : formState.bankWebsite.trim() || null,
-        currency_code: currency.rawLabel || currency.value,
+        currency_code: formState.currencyText.trim().toUpperCase() || null,
         account_name: formState.accountName.trim() || null,
         iban: formState.iban.trim() || null,
         account_number: formState.accountNumber.trim() || null,
@@ -254,14 +242,12 @@ export default function BankAccountCreatePage() {
                 />
               </label>
               <label className="bank-account-create-field">
-                <span>Валюта *</span>
+                <span>Валюта</span>
                 <input
-                  list="bank-account-currency-options"
                   type="text"
                   value={formState.currencyText}
                   onChange={(event) => updateField('currencyText', event.target.value.toUpperCase())}
-                  placeholder="Выберите существующую валюту"
-                  required
+                  placeholder="Можно оставить пустым или ввести вручную"
                 />
               </label>
             </div>
@@ -274,11 +260,6 @@ export default function BankAccountCreatePage() {
             <datalist id="bank-account-bank-options">
               {lookupState.banks.map((item) => (
                 <option key={item.value} value={item.label} />
-              ))}
-            </datalist>
-            <datalist id="bank-account-currency-options">
-              {lookupState.currencies.map((item) => (
-                <option key={item.value} value={item.rawLabel || item.value} />
               ))}
             </datalist>
           </section>

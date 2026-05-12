@@ -60,7 +60,7 @@ class BankAccountOverviewItem(BaseModel):
     account_number: str | None = None
     swift_or_bic: str | None = None
     bank_address: str | None = None
-    currency_code: str
+    currency_code: str | None = None
     is_primary: bool
     is_active: bool
     opened_at: date | None = None
@@ -74,7 +74,7 @@ class BankAccountLookupItem(BaseModel):
     company_name: str | None = None
     bank_id: int
     bank_name: str
-    currency_code: str
+    currency_code: str | None = None
 
 
 class CompanyContactCreateRequest(BaseModel):
@@ -89,7 +89,7 @@ class CompanyContactCreateRequest(BaseModel):
 class CompanyBankAccountCreateRequest(BaseModel):
     id: int | None = None
     bank_id: int
-    currency_code: str = Field(min_length=3, max_length=3)
+    currency_code: str | None = Field(default=None, max_length=32)
     account_name: str | None = Field(default=None, max_length=255)
     iban: str | None = Field(default=None, max_length=64)
     account_number: str | None = Field(default=None, max_length=64)
@@ -113,7 +113,7 @@ class BankAccountCreateRequest(BaseModel):
     bank_city: str | None = Field(default=None, max_length=128)
     bank_postal_code: str | None = Field(default=None, max_length=32)
     bank_website: str | None = Field(default=None, max_length=255)
-    currency_code: str = Field(min_length=3, max_length=3)
+    currency_code: str | None = Field(default=None, max_length=32)
     account_name: str | None = Field(default=None, max_length=255)
     iban: str | None = Field(default=None, max_length=64)
     account_number: str | None = Field(default=None, max_length=64)
@@ -129,7 +129,7 @@ class BankAccountCreateResponse(BaseModel):
     id: int
     company_id: int | None = None
     bank_id: int
-    currency_code: str
+    currency_code: str | None = None
 
 
 class BankAccountDetailResponse(BaseModel):
@@ -147,7 +147,7 @@ class BankAccountDetailResponse(BaseModel):
     bank_city: str | None = None
     bank_postal_code: str | None = None
     bank_website: str | None = None
-    currency_code: str
+    currency_code: str | None = None
     account_name: str | None = None
     iban: str | None = None
     account_number: str | None = None
@@ -172,7 +172,7 @@ class CompanyBankAccountResponse(BaseModel):
     id: int
     bank_id: int
     bank_label: str
-    currency_code: str
+    currency_code: str | None = None
     account_name: str | None = None
     iban: str | None = None
     account_number: str | None = None

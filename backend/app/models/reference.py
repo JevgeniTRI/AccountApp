@@ -75,7 +75,7 @@ class CompanyBankAccount(BigIntPrimaryKeyMixin, TimestampMixin, Base):
 
     company_id: Mapped[int | None] = mapped_column(ForeignKey("companies.id"), index=True)
     bank_id: Mapped[int] = mapped_column(ForeignKey("banks.id"), nullable=False, index=True)
-    currency_code: Mapped[str] = mapped_column(ForeignKey("currencies.code"), nullable=False)
+    currency_code: Mapped[str | None] = mapped_column(String(32))
     account_name: Mapped[str | None] = mapped_column(String(255))
     iban: Mapped[str | None] = mapped_column(String(64))
     account_number: Mapped[str | None] = mapped_column(String(64))
@@ -88,7 +88,6 @@ class CompanyBankAccount(BigIntPrimaryKeyMixin, TimestampMixin, Base):
 
     company: Mapped["Company | None"] = relationship(back_populates="bank_accounts")
     bank: Mapped["Bank"] = relationship(back_populates="company_bank_accounts")
-    currency: Mapped["Currency"] = relationship()
 
 
 class Client(BigIntPrimaryKeyMixin, TimestampMixin, Base):
