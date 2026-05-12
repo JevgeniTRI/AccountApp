@@ -1,8 +1,8 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, Download, Eye, Filter, Paperclip, Pencil, Plus, RefreshCw, Search, SlidersHorizontal } from 'lucide-react'
+import { ArrowLeft, Download, Eye, Filter, Paperclip, Pencil, Plus, RefreshCw, Search, SlidersHorizontal, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import LookupField from '../../components/LookupField/LookupField'
-import { buildPaymentAttachmentUrl, fetchPayments } from '../../lib/api'
+import { buildPaymentAttachmentUrl, deletePayment, fetchPayments } from '../../lib/api'
 import {
   formatAmount,
   formatDate,
@@ -21,7 +21,7 @@ function EmptyState({ search }) {
   )
 }
 
-function PaymentsTable({ rows, onEdit }) {
+function PaymentsTable({ rows, onDelete, onEdit }) {
   return (
     <table className="payments-table">
       <thead>
@@ -91,14 +91,24 @@ function PaymentsTable({ rows, onEdit }) {
                 <span className="payments-table__pill">{payment.status.replaceAll('_', ' ')}</span>
               </td>
               <td className="payments-table__actions">
-                <button
-                  type="button"
-                  className="payments-table__icon-button"
-                  onClick={() => onEdit(payment.id)}
-                  aria-label="Редактировать платёж"
-                >
-                  <Pencil size={14} />
-                </button>
+                <div className="payments-table__actions-group">
+                  <button
+                    type="button"
+                    className="payments-table__icon-button"
+                    onClick={() => onEdit(payment.id)}
+                    aria-label="Редактировать платёж"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className="payments-table__icon-button"
+                    onClick={() => onDelete(payment.id)}
+                    aria-label="Удалить платёж"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </td>
             </tr>
           )
@@ -215,6 +225,23 @@ export default function PaymentsPage() {
       [`${keyPrefix}Text`]: nextText,
       [keyPrefix]: current[keyPrefix] && nextText !== current[keyPrefix].label ? null : current[keyPrefix],
     }))
+  }
+
+  async function handleDelete(paymentId) {
+    const isConfirmed = window.confirm('Удалить этот платёж? Действие нельзя отменить.')
+    if (!isConfirmed) {
+      return
+    }
+
+    try {
+      await deletePayment(paymentId)
+      setRefreshKey((current) => current + 1)
+    } catch (error) {
+      setPaymentsState((current) => ({
+        ...current,
+        error: error.response?.data?.detail || 'Не удалось удалить платёж',
+      }))
+    }
   }
 
   return (
@@ -374,7 +401,11 @@ export default function PaymentsPage() {
             ) : paymentsState.items.length === 0 ? (
               <EmptyState search={Boolean(filters.search)} />
             ) : (
-              <PaymentsTable rows={paymentsState.items} onEdit={(paymentId) => navigate(`/payments/${paymentId}/edit`)} />
+              <PaymentsTable
+                rows={paymentsState.items}
+                onEdit={(paymentId) => navigate(`/payments/${paymentId}/edit`)}
+                onDelete={handleDelete}
+              />
             )}
           </div>
 

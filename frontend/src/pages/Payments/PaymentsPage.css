@@ -243,7 +243,13 @@
 }
 
 .payments-table__actions {
-  width: 52px;
+  width: 84px;
+}
+
+.payments-table__actions-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .payments-table__icon-button {

@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
 from app.models.accounting import PaymentFinancialBreakdown
+from app.models.accounting import ClientBalanceLedger, LedgerEntry, LedgerPosting, PaymentSettlementRuleSnapshot
 from app.models.banking import Payment, PaymentAttachment
 from app.models.enums import PaymentDirection, PaymentKind, PaymentStatus
 from app.models.reference import Bank, Client, Company, CompanyBankAccount, CompanyClient, Counterparty
@@ -319,6 +320,51 @@ async def update_payment(db: AsyncSession, payment_id: int, payload: PaymentCrea
     await upsert_payment_financial_breakdown(db, payment=payment, payload=payload, currency_code=resolved["currency_code"])
     await replace_payment_attachments(db, payment=payment, payload=payload)
     return payment
+
+
+async def delete_payment(db: AsyncSession, payment_id: int) -> None:
+    payment = await db.get(Payment, payment_id)
+    if payment is None:
+        raise PaymentValidationError("Payment not found")
+
+    attachments_result = await db.execute(
+        select(PaymentAttachment).where(PaymentAttachment.payment_id == payment.id)
+    )
+    for attachment in attachments_result.scalars().all():
+        await db.delete(attachment)
+
+    breakdown_result = await db.execute(
+        select(PaymentFinancialBreakdown).where(PaymentFinancialBreakdown.payment_id == payment.id)
+    )
+    breakdown = breakdown_result.scalar_one_or_none()
+    if breakdown is not None:
+        await db.delete(breakdown)
+
+    snapshot_result = await db.execute(
+        select(PaymentSettlementRuleSnapshot).where(PaymentSettlementRuleSnapshot.payment_id == payment.id)
+    )
+    snapshot = snapshot_result.scalar_one_or_none()
+    if snapshot is not None:
+        await db.delete(snapshot)
+
+    balance_entries_result = await db.execute(
+        select(ClientBalanceLedger).where(ClientBalanceLedger.payment_id == payment.id)
+    )
+    for entry in balance_entries_result.scalars().all():
+        await db.delete(entry)
+
+    ledger_entries_result = await db.execute(
+        select(LedgerEntry).where(LedgerEntry.payment_id == payment.id)
+    )
+    for ledger_entry in ledger_entries_result.scalars().all():
+        postings_result = await db.execute(
+            select(LedgerPosting).where(LedgerPosting.ledger_entry_id == ledger_entry.id)
+        )
+        for posting in postings_result.scalars().all():
+            await db.delete(posting)
+        await db.delete(ledger_entry)
+
+    await db.delete(payment)
 
 
 async def create_payments_batch(db: AsyncSession, payloads: list[PaymentCreateRequest]) -> list[Payment]:

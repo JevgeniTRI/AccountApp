@@ -39,6 +39,10 @@ export async function updatePayment(paymentId, payload) {
   return data
 }
 
+export async function deletePayment(paymentId) {
+  await api.delete(`/payments/${paymentId}`)
+}
+
 export async function createPaymentsBatch(items) {
   const { data } = await api.post('/payments/batch', { items })
   return data

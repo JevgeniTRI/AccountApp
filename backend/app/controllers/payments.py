@@ -23,6 +23,7 @@ from app.services.payments import (
     PaymentValidationError,
     create_payment,
     create_payments_batch,
+    delete_payment,
     get_payment_detail,
     list_payments,
     update_payment,
@@ -162,6 +163,19 @@ async def put_payment(
         payment_direction=payment.payment_direction,
         company_bank_account_id=payment.company_bank_account_id,
     )
+
+
+@router.delete("/{payment_id}", status_code=204)
+async def delete_payment_endpoint(payment_id: int, db: AsyncSession = Depends(get_db)) -> None:
+    try:
+        await delete_payment(db, payment_id)
+        await db.commit()
+    except PaymentValidationError as exc:
+        await db.rollback()
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except SQLAlchemyError as exc:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to delete payment") from exc
 
 
 @router.post("/batch", response_model=PaymentBatchCreateResponse, status_code=201)

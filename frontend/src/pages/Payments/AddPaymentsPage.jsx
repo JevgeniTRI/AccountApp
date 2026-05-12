@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import LookupField from '../../components/LookupField/LookupField'
-import { buildPaymentAttachmentUrl, createPaymentsBatch, fetchPayment, updatePayment } from '../../lib/api'
+import { buildPaymentAttachmentUrl, createPaymentsBatch, deletePayment, fetchPayment, updatePayment } from '../../lib/api'
 import {
   findLookupOption,
   formatAmount,
@@ -437,10 +437,6 @@ export default function AddPaymentsPage() {
           }
         }
 
-        if (row.partyType === 'counterparty' && !row.counterpartyName.trim()) {
-          throw new Error('Для типа "Контрагент" нужно указать контрагента')
-        }
-
         if (row.partyType === 'clientCounterparty') {
           if (!client) {
             throw new Error('Для типа "Клиент + контрагент" нужно выбрать клиента')
@@ -620,6 +616,32 @@ export default function AddPaymentsPage() {
           : row,
       ),
     }))
+  }
+
+  async function handleDeletePayment() {
+    if (!isEditMode) {
+      return
+    }
+
+    const isConfirmed = window.confirm('Удалить этот платёж? Действие нельзя отменить.')
+    if (!isConfirmed) {
+      return
+    }
+
+    setIsSaving(true)
+    setMessage({ type: '', text: '' })
+    try {
+      await deletePayment(paymentId)
+      setMessage({ type: 'success', text: 'Платёж удалён' })
+      window.setTimeout(() => navigate('/payments'), 400)
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.detail || error.message || 'Не удалось удалить платёж',
+      })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -980,6 +1002,17 @@ export default function AddPaymentsPage() {
             <button type="button" className="add-payments-footer__button" onClick={handleClearRows}>
               Очистить
             </button>
+            {isEditMode ? (
+              <button
+                type="button"
+                className="add-payments-footer__button is-danger"
+                onClick={handleDeletePayment}
+                disabled={isSaving}
+              >
+                <Trash2 size={16} />
+                Удалить платёж
+              </button>
+            ) : null}
           </div>
           <div className="add-payments-footer__group">
             {!isEditMode ? (
